@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: assign
+    runtime: docker
+    plan: starter            # needs a persistent disk, so not the free plan
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATA_DIR
+        value: /data
+      - key: ALLOW_SIGNUPS
+        value: "true"
+      - key: SESSION_DAYS
+        value: "30"
+      - key: PUBLIC_URL      # e.g. https://assign.onrender.com — used in MCP configs & skills
+        sync: false
+    disk:
+      name: assign-data
+      mountPath: /data
+      sizeGB: 1

@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+.next/
+
+# Python
+__pycache__/
+*.pyc
+
+# Environment files (keep examples)
+.env
+.env.local
+.env.*
+!.env.example
+
+# Firebase
+.firebase/
+
+# Logs and OS junk
+*.log
+.DS_Store
+Thumbs.db
+
+# Local binary artifacts (e.g. bin/cloudflared ~38MB executable)
+bin/

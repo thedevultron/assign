@@ -1,0 +1,31 @@
+# fly launch --copy-config --no-deploy
+# fly volumes create assign_data --size 1
+# fly secrets set PUBLIC_URL=https://<your-app>.fly.dev
+# fly deploy
+app = "assign"
+primary_region = "bom"
+
+[build]
+
+[env]
+  PORT = "3000"
+  DATA_DIR = "/data"
+  ALLOW_SIGNUPS = "true"
+  SESSION_DAYS = "30"
+
+[[mounts]]
+  source = "assign_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = false   # keep the scheduler + SSE streams alive
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    path = "/api/health"
+    timeout = "3s"
