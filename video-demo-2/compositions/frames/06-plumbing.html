@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"></head>
+<body>
+<template>
+<style>
+@font-face{font-family:"Inter";font-weight:400;font-style:normal;font-display:block;src:url("assets/fonts/Inter-400.woff2") format("woff2");}
+@font-face{font-family:"Inter";font-weight:700;font-style:normal;font-display:block;src:url("assets/fonts/Inter-700.woff2") format("woff2");}
+@font-face{font-family:"Newsreader";font-weight:300;font-style:normal;src:local("Newsreader Light"),local("Newsreader"),local("Georgia"),local("Times New Roman");}
+@font-face{font-family:"Newsreader";font-weight:400;font-style:normal;src:local("Newsreader"),local("Georgia"),local("Times New Roman");}
+@font-face{font-family:"Newsreader";font-weight:400;font-style:italic;src:local("Newsreader Italic"),local("Georgia Italic"),local("Georgia");}
+@font-face{font-family:"Roboto Mono";font-weight:400;font-style:normal;src:local("Roboto Mono"),local("Consolas"),local("Courier New");}
+@font-face{font-family:"Roboto Mono";font-weight:500;font-style:normal;src:local("Roboto Mono Medium"),local("Consolas"),local("Courier New");}
+#root{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;background:#090a0b;color:#f5f5f7;font-family:Inter,-apple-system,system-ui,sans-serif;}
+.glow{position:absolute;width:1300px;height:1300px;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(132,125,255,0.10) 0%,rgba(0,179,221,0.04) 45%,transparent 70%);border-radius:50%;pointer-events:none;}
+.kicker{position:absolute;top:48px;left:60px;font-family:"Roboto Mono",monospace;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#9f9fa0;display:inline-flex;align-items:center;gap:10px;}
+.kicker .dot{width:7px;height:7px;border-radius:50%;background:#847dff;box-shadow:0 0 10px #847dff;}
+.grid{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);display:grid;grid-template-columns:repeat(2,1fr);gap:28px;width:1180px;}
+.stat{background:#0f1011;border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:40px 36px;display:flex;flex-direction:column;gap:10px;opacity:0;transform:translateY(20px);}
+.stat .num{font-family:"Newsreader",Georgia,serif;font-weight:300;font-size:96px;line-height:1;letter-spacing:-.03em;color:#f5f5f7;font-variant-numeric:tabular-nums;}
+.stat .num.accent{color:#847dff;}
+.stat .label{font-family:"Roboto Mono",monospace;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#9f9fa0;}
+.stat .sub{font-size:15px;color:#c8c8cc;line-height:1.4;max-width:460px;}
+.headline{position:absolute;bottom:48px;left:60px;font-family:"Newsreader",Georgia,serif;font-weight:300;font-size:56px;line-height:1.05;letter-spacing:-.02em;max-width:760px;opacity:0;}
+.headline em{font-style:italic;color:#847dff;}
+</style>
+<div id="root" data-composition-id="06-plumbing" data-width="1920" data-height="1080">
+  <div class="glow" id="f6-glow"></div>
+  <div class="kicker"><span class="dot"></span>06 / real plumbing</div>
+  <div class="grid">
+    <div class="stat" id="s1"><div class="num" id="n1">0</div><div class="label">coding tools connected</div><div class="sub">Claude Code, Cursor, Codex, Copilot, Windsurf, Gemini CLI, Cline — and any MCP client.</div></div>
+    <div class="stat" id="s2"><div class="num" id="n2">0</div><div class="label">MCP tools exposed</div><div class="sub">13 primitives every connected agent can call. Three protocol versions supported.</div></div>
+    <div class="stat" id="s3"><div class="num" id="n3">0</div><div class="label">digit pairing code</div><div class="sub">Approve an agent on first connect with a six-digit code. No shared secrets.</div></div>
+    <div class="stat" id="s4"><div class="num accent" id="n4">0</div><div class="label">SQLite file you own</div><div class="sub">One file. Self-hosted on Docker, Fly.io or Render. Your data, your box.</div></div>
+  </div>
+  <div class="headline" id="f6-headline">Real <em>plumbing.</em></div>
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+const countTo = (el, target, dur, start) => {
+  const o = {v:0};
+  tl.to(o, {v:target, duration:dur, ease:"power2.out", onUpdate:()=>{ el.textContent = Math.round(o.v); }}, start);
+};
+tl.fromTo(".kicker",{opacity:0},{opacity:1,duration:0.4,ease:"power3.out"},0.1);
+// tiles in
+tl.fromTo("#s1",{opacity:0,y:20},{opacity:1,y:0,duration:0.5,ease:"power3.out"},0.6);
+tl.fromTo("#s2",{opacity:0,y:20},{opacity:1,y:0,duration:0.5,ease:"power3.out"},0.85);
+tl.fromTo("#s3",{opacity:0,y:20},{opacity:1,y:0,duration:0.5,ease:"power3.out"},1.1);
+tl.fromTo("#s4",{opacity:0,y:20},{opacity:1,y:0,duration:0.5,ease:"power3.out"},1.35);
+// count-ups
+countTo(document.getElementById("n1"),8,1.4,1.0);
+countTo(document.getElementById("n2"),13,1.4,1.25);
+countTo(document.getElementById("n3"),6,1.2,1.5);
+countTo(document.getElementById("n4"),1,1.0,1.75);
+// headline
+tl.fromTo("#f6-headline",{y:30,opacity:0},{y:0,opacity:1,duration:0.7,ease:"power3.out"},3.0);
+// glow
+tl.to("#f6-glow",{scale:1.18,duration:3.0,yoyo:true,repeat:1,ease:"sine.inOut"},0.5);
+window.__timelines["06-plumbing"]=tl;
+</script>
+</template>
+</body>
+</html>

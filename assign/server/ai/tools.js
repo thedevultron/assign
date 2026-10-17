@@ -367,6 +367,23 @@ export const TOOLS = [
     run: async (ctx, a) => { const s = await api(ctx, 'POST', `/runner-sessions/${encodeURIComponent(a.session)}/stop`); return { result: { stopped: a.session, status: s.status }, summary: 'Local run stopping' }; } },
   { name: 'get_run_output', risk: 'read', description: 'Live console output of a local runner session (what the agent CLI is printing right now).', parameters: obj({ session: S('Session id, e.g. rs_…') , tail_chars: N('Tail of output to return (default 4000)') }, ['session']),
     run: async (ctx, a) => { const s = await api(ctx, 'GET', `/runner-sessions/${encodeURIComponent(a.session)}/output`); const n = Math.min(12000, Math.max(500, +a.tail_chars || 4000)); return { status: s.status, cmd: s.cmd, output: (s.output || '').slice(-n) }; } },
+  /* ---------- long-term memory ---------- */
+  { name: 'remember', risk: 'write', description: 'Save a durable fact about the user or their workspace to long-term memory (MEMORY.md / memory.json). Use when the user states a preference, project context, a person, or anything worth recalling later. Do not re-ask what is already remembered.', parameters: obj({
+      kind: S('Memory kind', { enum: ['fact', 'preference', 'project', 'person', 'note'] }),
+      title: S('Short title (a few words)'),
+      content: S('Longer detail, optional'),
+    }, ['title']),
+    run: async (ctx, a) => {
+      let learn = true;
+      try { const s = await api(ctx, 'GET', '/settings'); learn = s?.ai?.memory_learn !== false; } catch { learn = true; }
+      if (!learn) return { result: { skipped: true, reason: 'Auto-learn is off in Settings → AI' }, summary: 'Memory auto-learn is disabled' };
+      const m = await api(ctx, 'POST', '/memory', { kind: a.kind || 'fact', title: a.title, content: a.content || '' });
+      return { result: { saved: m.title, kind: m.kind, id: m.id }, summary: `Remembered: ${m.title}` };
+    } },
+  { name: 'forget_memory', risk: 'write', description: 'Delete a memory by id. Use when the user asks you to forget something.', parameters: obj({ id: S('Memory id (m_…)') }, ['id']),
+    run: async (ctx, a) => { await api(ctx, 'DELETE', `/memory/${encodeURIComponent(a.id)}`); return { result: { deleted: a.id }, summary: 'Forgot that' }; } },
+  { name: 'list_memory', risk: 'read', description: 'List what is remembered about the user. Use before asking questions you might already know the answer to.', parameters: obj({ kind: S('Optional kind filter: fact, preference, project, person, note') }),
+    run: async (ctx, a) => { const r = await api(ctx, 'GET', `/memory${a.kind ? `?kind=${encodeURIComponent(a.kind)}` : ''}`); return { memories: r.memories || [], count: (r.memories || []).length }; } },
 ];
 const BY_NAME = Object.fromEntries(TOOLS.map((t) => [t.name, t]));
 

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"></head>
+<body>
+<template>
+<style>
+@font-face{font-family:"Inter";font-weight:400;font-style:normal;font-display:block;src:url("assets/fonts/Inter-400.woff2") format("woff2");}
+@font-face{font-family:"Inter";font-weight:700;font-style:normal;font-display:block;src:url("assets/fonts/Inter-700.woff2") format("woff2");}
+@font-face{font-family:"Newsreader";font-weight:300;font-style:normal;src:local("Newsreader Light"),local("Newsreader"),local("Georgia"),local("Times New Roman");}
+@font-face{font-family:"Newsreader";font-weight:400;font-style:normal;src:local("Newsreader"),local("Georgia"),local("Times New Roman");}
+@font-face{font-family:"Newsreader";font-weight:400;font-style:italic;src:local("Newsreader Italic"),local("Georgia Italic"),local("Georgia");}
+@font-face{font-family:"Roboto Mono";font-weight:400;font-style:normal;src:local("Roboto Mono"),local("Consolas"),local("Courier New");}
+@font-face{font-family:"Roboto Mono";font-weight:500;font-style:normal;src:local("Roboto Mono Medium"),local("Consolas"),local("Courier New");}
+#root{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;background:#090a0b;color:#f5f5f7;font-family:Inter,-apple-system,system-ui,sans-serif;}
+.glow{position:absolute;width:1300px;height:1300px;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(132,125,255,0.10) 0%,rgba(0,179,221,0.04) 45%,transparent 70%);border-radius:50%;pointer-events:none;}
+.board{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:1380px;height:720px;background:#0f1011;border:1px solid rgba(255,255,255,0.08);border-radius:18px;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,0.6);}
+.board-head{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.08);font-family:"Roboto Mono",monospace;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#9f9fa0;}
+.board-head .title{color:#f5f5f7;font-weight:500;letter-spacing:.02em;}
+.board-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:18px 24px;height:calc(100% - 60px);}
+.col{background:#161718;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;}
+.col h4{font-family:"Roboto Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#9f9fa0;margin:0 0 6px;}
+.card{background:#1c1d1e;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;font-size:13px;color:#f5f5f7;display:flex;flex-direction:column;gap:6px;position:relative;}
+.card .k{font-family:"Roboto Mono",monospace;font-size:11px;color:#847dff;}
+.card .a{font-family:"Roboto Mono",monospace;font-size:11px;color:#9f9fa0;}
+.card.target{border-color:rgba(132,125,255,0.5);box-shadow:0 0 0 1px rgba(132,125,255,0.3),0 0 24px rgba(132,125,255,0.18);}
+.lock{position:absolute;top:-10px;right:-10px;background:#847dff;color:#090a0b;font-family:"Roboto Mono",monospace;font-size:11px;font-weight:500;padding:4px 8px;border-radius:9999px;letter-spacing:.06em;opacity:0;transform:scale(0.6);}
+.branch{font-family:"Roboto Mono",monospace;font-size:11px;color:#63d990;margin-top:2px;opacity:0;}
+.cursor{position:absolute;width:14px;height:14px;border-radius:50%;border:2px solid #f5f5f7;background:#0f1011;box-shadow:0 0 12px rgba(255,255,255,0.3);opacity:0;}
+.cursor .label{position:absolute;left:18px;top:-6px;font-family:"Roboto Mono",monospace;font-size:11px;color:#f5f5f7;white-space:nowrap;background:rgba(15,16,17,0.85);padding:2px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.1);}
+.kicker{position:absolute;top:48px;left:60px;font-family:"Roboto Mono",monospace;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#9f9fa0;display:inline-flex;align-items:center;gap:10px;}
+.kicker .dot{width:7px;height:7px;border-radius:50%;background:#847dff;box-shadow:0 0 10px #847dff;}
+.headline{position:absolute;bottom:48px;left:60px;font-family:"Newsreader",Georgia,serif;font-weight:300;font-size:56px;line-height:1.05;letter-spacing:-.02em;max-width:760px;opacity:0;}
+.headline em{font-style:italic;color:#847dff;}
+</style>
+<div id="root" data-composition-id="03-atomic-claims" data-width="1920" data-height="1080">
+  <div class="glow" id="f3-glow"></div>
+  <div class="kicker"><span class="dot"></span>03 / atomic claims</div>
+  <div class="board" id="f3-board">
+    <div class="board-head"><span class="title">assign · board</span><span>live</span></div>
+    <div class="board-cols">
+      <div class="col"><h4>Backlog</h4>
+        <div class="card"><span class="k">ASG-31</span><span class="a">@sable</span></div>
+      </div>
+      <div class="col"><h4>Queued</h4>
+        <div class="card target" id="card-42"><span class="k">ASG-42</span><span class="a">Rate-limit retry logic</span><span class="branch" id="branch-42">nova/asg-42-rate-limit</span><span class="lock" id="lock-42">LOCKED</span></div>
+        <div class="card"><span class="k">ASG-44</span><span class="a">@atlas</span></div>
+      </div>
+      <div class="col"><h4>In Progress</h4>
+        <div class="card"><span class="k">ASG-38</span><span class="a">@atlas</span></div>
+      </div>
+      <div class="col"><h4>Review</h4>
+        <div class="card"><span class="k">ASG-29</span><span class="a">@nova</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="cursor" id="cur-nova" style="left:50%;top:50%;margin-left:-7px;margin-top:-7px;"><span class="label">@nova</span></div>
+  <div class="cursor" id="cur-atlas" style="left:50%;top:50%;margin-left:-7px;margin-top:-7px;"><span class="label">@atlas</span></div>
+  <div class="cursor" id="cur-sable" style="left:50%;top:50%;margin-left:-7px;margin-top:-7px;"><span class="label">@sable</span></div>
+  <div class="headline" id="f3-headline">Claims are <em>atomic.</em></div>
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+// board enters
+tl.fromTo("#f3-board",{scale:0.92,opacity:0},{scale:1,opacity:1,duration:0.7,ease:"power3.out"},0.1);
+tl.fromTo(".kicker",{opacity:0},{opacity:1,duration:0.4,ease:"power3.out"},0.1);
+// cursors appear
+tl.fromTo("#cur-nova",{x:-384,y:216,opacity:0},{x:-384,y:216,opacity:1,duration:0.3,ease:"power3.out"},0.7);
+tl.fromTo("#cur-atlas",{x:422,y:-270,opacity:0},{x:422,y:-270,opacity:1,duration:0.3,ease:"power3.out"},0.85);
+tl.fromTo("#cur-sable",{x:-730,y:-302,opacity:0},{x:-730,y:-302,opacity:1,duration:0.3,ease:"power3.out"},1.0);
+// all converge on ASG-42 (Queued col ~ center)
+tl.to("#cur-nova",{x:0,y:22,duration:1.1,ease:"power3.inOut"},1.15);
+tl.to("#cur-atlas",{x:19,y:11,duration:1.2,ease:"power3.inOut"},1.25);
+tl.to("#cur-sable",{x:-19,y:32,duration:1.3,ease:"power3.inOut"},1.35);
+// lock snaps
+tl.to("#lock-42",{opacity:1,scale:1,duration:0.35,ease:"back.out(2)"},2.55);
+tl.to("#branch-42",{opacity:1,duration:0.4,ease:"power3.out"},2.8);
+// headline
+tl.fromTo("#f3-headline",{y:30,opacity:0},{y:0,opacity:1,duration:0.7,ease:"power3.out"},2.9);
+// atlas and sable peel away to their own cards
+tl.to("#cur-atlas",{x:538,y:130,duration:0.9,ease:"power3.out"},3.6);
+tl.to("#cur-sable",{x:-730,y:302,duration:0.9,ease:"power3.out"},3.7);
+tl.to("#cur-atlas",{opacity:0,duration:0.3,ease:"power2.in"},4.6);
+tl.to("#cur-sable",{opacity:0,duration:0.3,ease:"power2.in"},4.7);
+// nova cursor settles
+tl.to("#cur-nova",{opacity:0,duration:0.4,ease:"power2.in"},4.8);
+// ambient glow
+tl.to("#f3-glow",{scale:1.18,duration:3.0,yoyo:true,repeat:1,ease:"sine.inOut"},0.4);
+window.__timelines["03-atomic-claims"]=tl;
+</script>
+</template>
+</body>
+</html>

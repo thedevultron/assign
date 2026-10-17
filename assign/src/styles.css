@@ -349,7 +349,11 @@ input[type="datetime-local"].input, input[type="time"].input { color-scheme: dar
 .board-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .board-tools { display: flex; align-items: center; gap: 10px; padding: 16px 28px; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
 .filter-input { height: 34px; width: 220px; }
-.columns { flex: 1; min-height: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(272px, 1fr); gap: 12px; padding: 18px 28px 28px; overflow-x: auto; overflow-y: hidden; }
+.columns { flex: 1; min-height: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(272px, 1fr); gap: 12px; padding: 18px 28px 28px; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.25) transparent; }
+.columns::-webkit-scrollbar { height: 10px; }
+.columns::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); border-radius: 9999px; }
+.columns::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 9999px; }
+.columns::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
 .column { display: flex; flex-direction: column; min-height: 0; background: var(--s2); border-radius: 16px; transition: background-color var(--dur) ease; position: relative; }
 .column.over { background: var(--s3); }
 .col-head { display: flex; align-items: center; gap: 8px; padding: 16px 16px 10px; }
@@ -610,6 +614,7 @@ input[type="datetime-local"].input, input[type="time"].input { color-scheme: dar
 .boards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
 .board-card { display: flex; flex-direction: column; gap: 14px; align-items: stretch; text-align: left; padding: 18px; border-radius: 16px; border: 1px solid var(--line); background: var(--s1); cursor: pointer; transition: border-color 0.2s ease, transform 0.2s ease; font: inherit; color: inherit; }
 .board-card:hover { border-color: var(--line-3); transform: translateY(-2px); }
+.drag-handle { display: inline-flex; align-items: center; color: var(--t-muted, #6a6b6b); font-size: 14px; letter-spacing: -2px; cursor: grab; user-select: none; opacity: 0.6; }
 .board-counts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
 .board-count { display: flex; flex-direction: column; gap: 2px; align-items: center; padding: 8px 4px; border-radius: 10px; background: var(--s2); }
 .board-count b { color: #fff; font-size: 15px; }
@@ -1010,6 +1015,14 @@ details.advanced[open] summary svg { transform: rotate(180deg); }
 .ai-mic.live { color: #9be3b4; border-color: rgba(155, 227, 180, 0.5); }
 .ai-mic.live::after { content: ''; position: absolute; top: 8px; right: 8px; width: 7px; height: 7px; border-radius: 9999px; background: #9be3b4; animation: aiPulse 1.2s ease-in-out infinite; }
 .icon-btn.sm.live { color: #9be3b4; }
+
+/* the one big mic — voice idle state */
+.ai-mic-big { width: 72px; height: 72px; border-radius: 9999px; border: 1px solid var(--line-3); background: rgba(132, 125, 255, 0.12); color: #d1c9ff; display: grid; place-items: center; cursor: pointer; transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease; }
+.ai-mic-big:hover { background: rgba(132, 125, 255, 0.22); border-color: #d1c9ff; transform: scale(1.05); }
+.ai-mic-big:active { transform: scale(0.96); }
+.ai-mic-big:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.ai-mic-big.shake { animation: aiShake 0.4s ease; color: #ffb4a8; border-color: rgba(255, 180, 168, 0.4); }
+@keyframes aiShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 .ai-foot { display: flex; justify-content: space-between; gap: 10px; color: #6a6b6b; padding: 0 4px; }
 .ai-keycard { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 400px; padding: 16px; border-radius: 16px; border: 1px solid var(--line-2); background: #161718; }
 .ai-keyico { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); color: #d1c9ff; flex: none; }

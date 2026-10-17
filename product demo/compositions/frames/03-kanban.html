@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        @font-face {
+          font-family: 'Roboto Mono';
+          src: local('Consolas'), local('Courier New'), local('monospace');
+        }
+        @font-face {
+          font-family: 'Newsreader';
+          src: local('Georgia'), local('Times New Roman'), local('serif');
+        }
+        #root {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+          background: #090a0b;
+          color: #f5f5f7;
+          font-family: "Inter", -apple-system, system-ui, sans-serif;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 40px 100px;
+        }
+        .section-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          padding: 6px 18px;
+          border-radius: 9999px;
+          font-family: "Roboto Mono", monospace;
+          font-size: 13px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #a0a0a2;
+          margin-bottom: 12px;
+        }
+        .section-badge .dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #00b3dd;
+          box-shadow: 0 0 10px #00b3dd;
+        }
+        .serif-title {
+          font-family: "Newsreader", Georgia, serif;
+          font-weight: 300;
+          font-size: 58px;
+          line-height: 1.1;
+          letter-spacing: -0.02em;
+          text-align: center;
+          color: #f5f5f7;
+        }
+        .serif-title em {
+          font-style: italic;
+          color: #ffffff;
+        }
+        .kanban-board {
+          width: 1540px;
+          height: 540px;
+          background: #0f1011;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 20px;
+          padding: 24px;
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 20px;
+          margin-top: 24px;
+          box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
+        }
+        .kanban-col {
+          background: #161718;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 14px;
+          padding: 18px 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .kanban-col-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-family: "Roboto Mono", monospace;
+          font-size: 13px;
+          color: #6a6b6f;
+          padding-bottom: 8px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .kanban-col-head .count {
+          background: #1f2021;
+          padding: 2px 8px;
+          border-radius: 6px;
+          color: #a0a0a2;
+        }
+        .k-card {
+          background: #1f2021;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 10px;
+          padding: 14px 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .k-card-title {
+          font-size: 15px;
+          font-weight: 500;
+          color: #f5f5f7;
+        }
+        .k-card-meta {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 12px;
+          color: #6a6b6f;
+          font-family: "Roboto Mono", monospace;
+        }
+        .progress-track {
+          width: 100%;
+          height: 5px;
+          background: rgba(255, 255, 255, 0.08);
+          border-radius: 3px;
+          overflow: hidden;
+        }
+        .progress-fill {
+          height: 100%;
+          background: #00b3dd;
+          border-radius: 3px;
+          width: 20%;
+        }
+        .live-feed-bar {
+          width: 1540px;
+          margin-top: 18px;
+          background: #161718;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 12px;
+          padding: 12px 24px;
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          font-family: "Roboto Mono", monospace;
+          font-size: 13px;
+          color: #a0a0a2;
+        }
+        .live-pulse {
+          width: 10px;
+          height: 10px;
+          background: #10b981;
+          border-radius: 50%;
+          box-shadow: 0 0 10px #10b981;
+        }
+      </style>
+
+      <div id="root" data-composition-id="frame-03" data-width="1920" data-height="1080">
+        <div class="section-badge"><span class="dot"></span>Real-Time Kanban Engine</div>
+        <h2 class="serif-title">
+          Watch the work <em>move live.</em>
+        </h2>
+
+        <div class="kanban-board" id="f3-board">
+          <!-- Col 1: Queued -->
+          <div class="kanban-col">
+            <div class="kanban-col-head">
+              <span>QUEUED</span>
+              <span class="count">2</span>
+            </div>
+            <div class="k-card">
+              <div class="k-card-title">Dark mode CSS tokens</div>
+              <div class="k-card-meta">
+                <span>ASG-43</span>
+                <span style="color: #dd90d8;">@sable</span>
+              </div>
+            </div>
+            <div class="k-card">
+              <div class="k-card-title">Sign-up e2e tests</div>
+              <div class="k-card-meta">
+                <span>ASG-45</span>
+                <span style="color: #00b3dd;">@atlas</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Col 2: In Progress -->
+          <div class="kanban-col">
+            <div class="kanban-col-head">
+              <span>IN PROGRESS</span>
+              <span class="count">1</span>
+            </div>
+            <div id="f3-card-stream" class="k-card">
+              <div class="k-card-title">Rate-limit public API</div>
+              <div class="k-card-meta">
+                <span>ASG-42</span>
+                <span style="color: #847dff;">@nova</span>
+              </div>
+              <div class="progress-track">
+                <div id="f3-progress-bar" class="progress-fill"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 11px; font-family: 'Roboto Mono', monospace; color: #00b3dd;">
+                <span>STATUS: STREAMING</span>
+                <span id="f3-percent-num">25%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Col 3: Review -->
+          <div class="kanban-col">
+            <div class="kanban-col-head">
+              <span>REVIEW</span>
+              <span class="count">1</span>
+            </div>
+            <div class="k-card" id="f3-review-card">
+              <div class="k-card-title">Checkout flaky test fix</div>
+              <div class="k-card-meta">
+                <span>ASG-38</span>
+                <span style="color: #00b3dd;">@atlas</span>
+              </div>
+              <span style="font-size: 11px; color: #10b981; font-family: 'Roboto Mono', monospace;">✓ PR #142 Ready</span>
+            </div>
+          </div>
+
+          <!-- Col 4: Done -->
+          <div class="kanban-col">
+            <div class="kanban-col-head">
+              <span>DONE</span>
+              <span class="count">4</span>
+            </div>
+            <div class="k-card" style="opacity: 0.65;">
+              <div class="k-card-title">Upgrade to React 19</div>
+              <div class="k-card-meta">
+                <span>ASG-35</span>
+                <span>Shipped</span>
+              </div>
+            </div>
+            <div class="k-card" style="opacity: 0.65;">
+              <div class="k-card-title">Webhook retry policy</div>
+              <div class="k-card-meta">
+                <span>ASG-32</span>
+                <span>Shipped</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="live-feed-bar">
+          <div class="live-pulse"></div>
+          <span style="color: #6a6b6f;">LIVE STREAM:</span>
+          <span>@nova progress 64% on ASG-42 · updated branch nova/asg-42-rate-limit</span>
+          <span style="margin-left: auto; color: #00b3dd; font-size: 12px;">&lt; 50ms SSE LATENCY</span>
+        </div>
+      </div>
+
+      <script>
+        const tl = gsap.timeline({ paused: true });
+        tl.fromTo("#f3-board", 
+          { scale: 0.94, opacity: 0 }, 
+          { scale: 1, opacity: 1, duration: 0.5, ease: "power3.out" }, 
+          0.1
+        );
+        // Progress fill animation
+        tl.fromTo("#f3-progress-bar", 
+          { width: "20%" }, 
+          { width: "75%", duration: 2.0, ease: "power1.inOut" }, 
+          0.8
+        );
+        // Number counter on progress percentage
+        const pProxy = { val: 25 };
+        tl.to(pProxy, {
+          val: 75,
+          duration: 2.0,
+          ease: "power1.inOut",
+          onUpdate: () => {
+            const el = document.getElementById("f3-percent-num");
+            if (el) el.textContent = Math.round(pProxy.val) + "%";
+          }
+        }, 0.8);
+
+        // Highlight review card arrival
+        tl.fromTo("#f3-review-card", 
+          { scale: 1 }, 
+          { scale: 1.03, borderColor: "#847dff", duration: 0.4, yoyo: true, repeat: 1 }, 
+          2.4
+        );
+        window.__timelines["frame-03"] = tl;
+      </script>
+    </template>
+  </body>
+</html>

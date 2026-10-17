@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"></head>
+<body>
+<template>
+<style>
+@font-face{font-family:"Inter";font-weight:400;font-style:normal;font-display:block;src:url("assets/fonts/Inter-400.woff2") format("woff2");}
+@font-face{font-family:"Inter";font-weight:700;font-style:normal;font-display:block;src:url("assets/fonts/Inter-700.woff2") format("woff2");}
+@font-face{font-family:"Newsreader";font-weight:300;font-style:normal;src:local("Newsreader Light"),local("Newsreader"),local("Georgia"),local("Times New Roman");}
+@font-face{font-family:"Newsreader";font-weight:400;font-style:normal;src:local("Newsreader"),local("Georgia"),local("Times New Roman");}
+@font-face{font-family:"Newsreader";font-weight:400;font-style:italic;src:local("Newsreader Italic"),local("Georgia Italic"),local("Georgia");}
+@font-face{font-family:"Roboto Mono";font-weight:400;font-style:normal;src:local("Roboto Mono"),local("Consolas"),local("Courier New");}
+@font-face{font-family:"Roboto Mono";font-weight:500;font-style:normal;src:local("Roboto Mono Medium"),local("Consolas"),local("Courier New");}
+#root{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;background:#090a0b;color:#f5f5f7;font-family:Inter,-apple-system,system-ui,sans-serif;}
+.glow{position:absolute;width:1300px;height:1300px;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(0,179,221,0.08) 0%,rgba(132,125,255,0.04) 45%,transparent 70%);border-radius:50%;pointer-events:none;}
+.board{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:1440px;height:760px;background:#0f1011;border:1px solid rgba(255,255,255,0.08);border-radius:18px;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,0.6);}
+.board-head{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.08);font-family:"Roboto Mono",monospace;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#9f9fa0;}
+.board-head .title{color:#f5f5f7;font-weight:500;letter-spacing:.02em;}
+.chips{display:flex;gap:10px;align-items:center;}
+.chip{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);padding:6px 12px;border-radius:9999px;font-size:12px;color:#c8c8cc;}
+.chip.accent{background:rgba(132,125,255,0.12);border-color:rgba(132,125,255,0.3);color:#d1c9ff;}
+.board-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:18px 24px;height:calc(100% - 60px);}
+.col{background:#161718;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;position:relative;}
+.col h4{font-family:"Roboto Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#9f9fa0;margin:0 0 6px;display:flex;justify-content:space-between;}
+.col h4 .cnt{color:#847dff;}
+.card{background:#1c1d1e;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;font-size:13px;color:#f5f5f7;display:flex;flex-direction:column;gap:6px;opacity:0;transform:translateY(8px);}
+.card .k{font-family:"Roboto Mono",monospace;font-size:11px;color:#847dff;}
+.card .a{font-family:"Roboto Mono",monospace;font-size:11px;color:#9f9fa0;}
+.bar{height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;}
+.bar .fill{height:100%;background:linear-gradient(90deg,#847dff,#00b3dd);width:0%;}
+.kicker{position:absolute;top:48px;left:60px;font-family:"Roboto Mono",monospace;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#9f9fa0;display:inline-flex;align-items:center;gap:10px;}
+.kicker .dot{width:7px;height:7px;border-radius:50%;background:#00b3dd;box-shadow:0 0 10px #00b3dd;}
+.headline{position:absolute;bottom:48px;left:60px;font-family:"Newsreader",Georgia,serif;font-weight:300;font-size:56px;line-height:1.05;letter-spacing:-.02em;max-width:760px;opacity:0;}
+.headline em{font-style:italic;color:#00b3dd;}
+</style>
+<div id="root" data-composition-id="04-live-board" data-width="1920" data-height="1080">
+  <div class="glow" id="f4-glow"></div>
+  <div class="kicker"><span class="dot"></span>04 / live board</div>
+  <div class="board" id="f4-board">
+    <div class="board-head">
+      <span class="title">assign · board</span>
+      <div class="chips">
+        <span class="chip accent">Smart routing</span>
+        <span class="chip">Sending: Balanced</span>
+      </div>
+    </div>
+    <div class="board-cols">
+      <div class="col" id="col-backlog"><h4>Backlog <span class="cnt" id="cnt-b">0</span></h4></div>
+      <div class="col" id="col-queued"><h4>Queued <span class="cnt" id="cnt-q">0</span></h4></div>
+      <div class="col" id="col-progress"><h4>In Progress <span class="cnt" id="cnt-p">0</span></h4></div>
+      <div class="col" id="col-review"><h4>Review <span class="cnt" id="cnt-r">0</span></h4></div>
+    </div>
+  </div>
+  <div class="headline" id="f4-headline">Watch it <em>move.</em></div>
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+const makeCard = (k,a,prog) => {
+  const c = document.createElement("div");
+  c.className = "card";
+  c.innerHTML = `<span class="k">${k}</span><span class="a">${a}</span><div class="bar"><div class="fill" style="width:${prog}%"></div></div>`;
+  return c;
+};
+tl.fromTo("#f4-board",{scale:0.92,opacity:0},{scale:1,opacity:1,duration:0.7,ease:"power3.out"},0.1);
+tl.fromTo(".kicker",{opacity:0},{opacity:1,duration:0.4,ease:"power3.out"},0.1);
+// populate backlog
+tl.add(()=>{ document.getElementById("col-backlog").appendChild(makeCard("ASG-51","@sable",0)); document.getElementById("cnt-b").textContent="1"; },0.9);
+tl.fromTo("#col-backlog .card:last-child",{opacity:0,y:8},{opacity:1,y:0,duration:0.4,ease:"power3.out"},0.92);
+// queued
+tl.add(()=>{ document.getElementById("col-queued").appendChild(makeCard("ASG-42","@nova",0)); document.getElementById("cnt-q").textContent="1"; },1.5);
+tl.fromTo("#col-queued .card:last-child",{opacity:0,y:8},{opacity:1,y:0,duration:0.4,ease:"power3.out"},1.52);
+tl.add(()=>{ document.getElementById("col-queued").appendChild(makeCard("ASG-44","@atlas",0)); document.getElementById("cnt-q").textContent="2"; },2.0);
+tl.fromTo("#col-queued .card:last-child",{opacity:0,y:8,immediateRender:false},{opacity:1,y:0,duration:0.4,ease:"power3.out"},2.02);
+// move 42 to in progress
+tl.add(()=>{ const c=document.querySelector("#col-queued .card"); document.getElementById("col-progress").appendChild(c); document.getElementById("cnt-q").textContent="1"; document.getElementById("cnt-p").textContent="1"; },2.8);
+tl.to("#col-progress .card:last-child .fill",{width:"45%",duration:1.6,ease:"power2.out"},3.0);
+// move 44 to in progress
+tl.add(()=>{ const c=document.querySelector("#col-queued .card"); document.getElementById("col-progress").appendChild(c); document.getElementById("cnt-q").textContent="0"; document.getElementById("cnt-p").textContent="2"; },4.2);
+tl.to("#col-progress .card:last-child .fill",{width:"30%",duration:1.6,ease:"power2.out",overwrite:"auto"},4.4);
+// move 42 to review
+tl.add(()=>{ const c=document.getElementById("col-progress").querySelector(".card"); document.getElementById("col-review").appendChild(c); document.getElementById("cnt-p").textContent="1"; document.getElementById("cnt-r").textContent="1"; },6.0);
+tl.to("#col-review .card:last-child .fill",{width:"100%",duration:1.2,ease:"power2.out"},6.2);
+// headline
+tl.fromTo("#f4-headline",{y:30,opacity:0},{y:0,opacity:1,duration:0.7,ease:"power3.out"},3.2);
+// ambient glow
+tl.to("#f4-glow",{scale:1.18,duration:3.0,yoyo:true,repeat:1,ease:"sine.inOut"},0.5);
+window.__timelines["04-live-board"]=tl;
+</script>
+</template>
+</body>
+</html>

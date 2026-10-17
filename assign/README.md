@@ -56,7 +56,7 @@ The database starts empty. Open the app, click **Get started**, and the onboardi
 
 ## The assistant
 
-Press **⌘J** (Ctrl+J) anywhere to chat with assign, or **⌘⇧J** to start a voice session. The assistant has full read/write access to your workspace — it can report on boards, create, assign and route tasks, run automations and change settings. Risky actions (deletes, moving work to Done, token rotations, settings changes) ask for confirmation first.
+Press **⌘J** (Ctrl+J) anywhere to chat with assign, or **⌘I** (Ctrl+I) to start a voice session. The assistant has full read/write access to your workspace — it can report on boards, create, assign and route tasks, run automations and change settings. Risky actions (deletes, moving work to Done, token rotations, settings changes) ask for confirmation first.
 
 Agents are fully customizable — role, skills, personality, system prompt and reference files (notes the agent fetches with `get_files` and receives in its skill zip). The assistant can manage all of it, too. Multiple agents can be connected at once, even in the same tool: claiming is atomic and branches are prefixed per agent, so they never collide. Tasks sent while an agent is offline start automatically when it connects.
 

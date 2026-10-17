@@ -1,10 +1,10 @@
 import crypto from 'node:crypto';
 import express from 'express';
-import { db, now, uid, newToken, hydrate, getSettings, saveSettings, nextTaskNumber, getWorkspace, POLICY_PRESETS, slugify } from './db.js';
+import { db, now, uid, newToken, hydrate, getSettings, saveSettings, nextTaskNumber, getWorkspace, POLICY_PRESETS, slugify, MEMORY_KINDS, listMemories, getMemory, saveMemory, deleteMemory, exportMemoryFiles } from './db.js';
 import { emit, emitTask, getTask, getAgent, listAgents, logActivity, routeTask, dispatchTask, applyStartPolicy, addClient, deliver, taskBrief, keyOf, publicAgent, STATUSES, PRIORITIES, STATUS_LABEL, PROVIDERS, agentLoad } from './core.js';
 import { runAutomation } from './scheduler.js';
 import { hashPassword, verifyPassword, createSession, destroySession, destroyUserSessions, requireAuth, publicUser, rateLimit, tokenFromReq, userFromToken } from './auth.js';
-import { clientConfigs, personalSkill, zip, baseUrlFrom, serverKey, CLIENTS, detectProvider } from './skill.js';
+import { clientConfigs, personalSkill, zip, baseUrlFrom, serverKey, CLIENTS, detectProvider, clientLabel, SKILL_VERSION } from './skill.js';
 import { persona } from './mcp.js';
 import { runnerRoutes, listRunners, listSessions } from './runners.js';
 
@@ -101,7 +101,7 @@ function insertAgent(ws, f, actor = 'you') {
   const a = { id: uid('a_'), workspace_id: ws, avatar: '', role: '', personality: '', system_prompt: '', webhook_url: '', skills: '[]', max_concurrent: 3, paused: 0, provider: 'claude-code', paired_at: getSettings(ws).require_pairing === false ? now() : null, ...f, color, handle: uniqueHandle(ws, f.handle || f.name), token: newToken(), created_at: now() };
   const cols = Object.keys(a);
   db.prepare(`INSERT INTO agents (${cols.join(',')}) VALUES (${cols.map((c) => '@' + c).join(',')})`).run(a);
-  logActivity(ws, { agent_id: a.id, actor, kind: 'agent', message: `Added agent ${a.name} (${CLIENTS[a.provider]?.label || a.provider})` });
+  logActivity(ws, { agent_id: a.id, actor, kind: 'agent', message: `Added agent ${a.name} (${clientLabel(a)})` });
   const out = publicAgent(getAgent(ws, a.id));
   emit(ws, 'agent', out);
   return out;
@@ -129,6 +129,7 @@ r.post('/onboarding/complete', wrap((req) => {
       const name = str(a.name, 40).trim(); if (!name) continue;
       created.agents.push(insertAgent(ws, {
         name, handle: a.handle, provider: PROVIDERS.includes(a.provider) ? a.provider : 'other',
+        provider_label: str(a.provider_label, 60).trim(),
         role: str(a.role, 200), personality: str(a.personality, 1000), skills: JSON.stringify((a.skills || []).map((s) => str(s, 30)).filter(Boolean).slice(0, 20)),
         color: /^#[0-9a-f]{6}$/i.test(a.color || '') ? a.color : undefined,
       }));
@@ -339,6 +340,7 @@ function agentFields(body) {
   if ('color' in body) { if (!/^#[0-9a-f]{6}$/i.test(body.color)) throw bad('Invalid colour'); f.color = body.color; }
   if ('avatar' in body) { const v = str(body.avatar, 400000); if (v && !v.startsWith('data:image/')) throw bad('Avatar must be an image'); f.avatar = v; }
   if ('provider' in body) { if (!PROVIDERS.includes(body.provider)) throw bad('Unknown coding tool'); f.provider = body.provider; }
+  if ('provider_label' in body) f.provider_label = str(body.provider_label, 60).trim();
   for (const k of ['role', 'personality', 'system_prompt', 'webhook_url']) if (k in body) f[k] = str(body[k], k === 'system_prompt' ? 20000 : 1000);
   if (f.webhook_url && !/^https?:\/\//.test(f.webhook_url)) throw bad('Webhook must be an http(s) URL');
   if ('skills' in body) f.skills = JSON.stringify((Array.isArray(body.skills) ? body.skills : []).map((s) => str(s, 30).trim()).filter(Boolean).slice(0, 20));
@@ -429,7 +431,7 @@ r.get('/agents/:id/skill.zip', (req, res) => {
   if (!a) return res.status(404).json({ error: 'Agent not found' });
   const refFiles = db.prepare('SELECT name, content FROM agent_files WHERE agent_id = ? ORDER BY name').all(a.id);
   const files = personalSkill({ baseUrl: baseUrlFrom(req), agent: a, workspace: getWorkspace(ws), persona: persona(a), prefix: getSettings(ws).key_prefix, refFiles });
-  res.set({ 'Content-Type': 'application/zip', 'Content-Disposition': `attachment; filename="${serverKey(a)}-skill.zip"`, 'Cache-Control': 'no-store' });
+  res.set({ 'Content-Type': 'application/zip', 'Content-Disposition': `attachment; filename="${serverKey(a)}-skill-v${SKILL_VERSION}.zip"`, 'Cache-Control': 'no-store' });
   res.send(zip(files));
 });
 
@@ -703,6 +705,32 @@ r.delete('/account', wrap((req) => {
   return { ok: true };
 }));
 
+/* ---------------- long-term memory ---------------- */
+r.get('/memory', wrap((req) => {
+  const kind = req.query.kind ? String(req.query.kind) : undefined;
+  return { memories: listMemories(req.ws, { kind }), kinds: MEMORY_KINDS };
+}));
+r.post('/memory', wrap((req) => {
+  const b = req.body || {};
+  const m = saveMemory(req.ws, { kind: b.kind, title: b.title, content: b.content, source: 'user' });
+  return m;
+}));
+r.patch('/memory/:id', wrap((req) => {
+  const b = req.body || {};
+  const cur = getMemory(req.ws, req.params.id);
+  if (!cur) throw bad('Memory not found', 404);
+  return saveMemory(req.ws, { id: req.params.id, kind: b.kind || cur.kind, title: b.title != null ? b.title : cur.title, content: b.content != null ? b.content : cur.content });
+}));
+r.delete('/memory/:id', wrap((req) => {
+  const cur = getMemory(req.ws, req.params.id);
+  if (!cur) throw bad('Memory not found', 404);
+  return deleteMemory(req.ws, req.params.id);
+}));
+r.get('/memory/files', wrap((req) => {
+  const files = exportMemoryFiles(req.ws);
+  return { files };
+}));
+
 /* ---------------- workspace data ---------------- */
 r.get('/export', (req, res) => {
   const ws = req.ws;
@@ -714,6 +742,7 @@ r.get('/export', (req, res) => {
     tasks: db.prepare('SELECT * FROM tasks WHERE workspace_id = ?').all(ws).map(hydrate.task),
     automations: db.prepare('SELECT * FROM automations WHERE workspace_id = ?').all(ws).map(hydrate.automation),
     activity: db.prepare('SELECT * FROM activity WHERE workspace_id = ? ORDER BY created_at').all(ws),
+    memories: listMemories(ws),
   };
   res.set({ 'Content-Type': 'application/json', 'Content-Disposition': `attachment; filename="assign-export-${now().slice(0, 10)}.json"` });
   res.send(JSON.stringify(data, null, 2));

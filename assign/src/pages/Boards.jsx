@@ -60,6 +60,7 @@ export default function Boards() {
                 initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: EASE_OUT, delay: i * 0.05 }}
               >
                 <span className="row" style={{ gap: 10 }}>
+                  <span className="drag-handle" aria-hidden title="Drag to reorder">⋮⋮</span>
                   <span className="board-glyph lg">{(b.emoji || b.name[0] || '·').toUpperCase()}</span>
                   <span className="col grow" style={{ minWidth: 0, gap: 2, textAlign: 'left' }}>
                     <span className="h4 trunc" style={{ color: '#fff' }}>{b.name}</span>

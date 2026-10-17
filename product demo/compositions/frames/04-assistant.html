@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        @font-face {
+          font-family: 'Roboto Mono';
+          src: local('Consolas'), local('Courier New'), local('monospace');
+        }
+        @font-face {
+          font-family: 'Newsreader';
+          src: local('Georgia'), local('Times New Roman'), local('serif');
+        }
+        #root {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+          background: #090a0b;
+          color: #f5f5f7;
+          font-family: "Inter", -apple-system, system-ui, sans-serif;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 40px 100px;
+        }
+        .section-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          padding: 6px 18px;
+          border-radius: 9999px;
+          font-family: "Roboto Mono", monospace;
+          font-size: 13px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #a0a0a2;
+          margin-bottom: 12px;
+        }
+        .section-badge .dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #847dff;
+          box-shadow: 0 0 10px #847dff;
+        }
+        .serif-title {
+          font-family: "Newsreader", Georgia, serif;
+          font-weight: 300;
+          font-size: 58px;
+          line-height: 1.1;
+          letter-spacing: -0.02em;
+          text-align: center;
+          color: #f5f5f7;
+        }
+        .serif-title em {
+          font-style: italic;
+          color: #ffffff;
+        }
+        .split-grid {
+          width: 1540px;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 36px;
+          margin-top: 32px;
+        }
+        .assist-pane {
+          background: #161718;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 20px;
+          padding: 36px;
+          display: flex;
+          flex-direction: column;
+          gap: 22px;
+          position: relative;
+        }
+        .key-badge {
+          position: absolute;
+          top: 28px;
+          right: 28px;
+          background: #1f2021;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 8px;
+          padding: 6px 14px;
+          font-family: "Roboto Mono", monospace;
+          font-size: 13px;
+          font-weight: 600;
+          color: #ffffff;
+        }
+        .chat-box {
+          background: #1f2021;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 12px;
+          padding: 18px 22px;
+          font-size: 17px;
+          color: #ffffff;
+          line-height: 1.45;
+        }
+        .chip-tool {
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          background: rgba(132, 125, 255, 0.12);
+          border: 1px solid #847dff;
+          border-radius: 8px;
+          padding: 10px 16px;
+          font-family: "Roboto Mono", monospace;
+          font-size: 13.5px;
+          color: #d1c9ff;
+        }
+        .orb-stage {
+          width: 100%;
+          height: 220px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+        }
+        .g-orb {
+          width: 110px;
+          height: 110px;
+          border-radius: 50%;
+          background: radial-gradient(circle, #00b3dd 0%, #847dff 65%, transparent 100%);
+          box-shadow: 0 0 50px rgba(0, 179, 221, 0.6);
+          position: relative;
+        }
+        .g-ring {
+          position: absolute;
+          inset: -20px;
+          border: 2px dashed rgba(132, 125, 255, 0.4);
+          border-radius: 50%;
+        }
+        .transcript-box {
+          background: #1f2021;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+          padding: 14px 18px;
+          font-size: 15px;
+          color: #a0a0a2;
+          font-style: italic;
+        }
+      </style>
+
+      <div id="root" data-composition-id="frame-04" data-width="1920" data-height="1080">
+        <div class="section-badge"><span class="dot"></span>Built-In Workspace Assistant</div>
+        <h2 class="serif-title">
+          Tell the board <em>what to do.</em>
+        </h2>
+
+        <div class="split-grid">
+          <!-- Left: ⌘J Chat -->
+          <div class="assist-pane" id="f4-chat-pane">
+            <div class="key-badge">⌘J CHAT</div>
+            <div style="font-size: 20px; font-weight: 600;">Type it, watch it happen.</div>
+            <div class="chat-box">
+              <span style="color: #c8c8cc; font-size: 13px; display: block; margin-bottom: 4px; font-family: 'Roboto Mono', monospace;">PROMPT:</span>
+              <span>Add audit log to billing for Nova, high priority, due Friday.</span>
+            </div>
+            <div class="chip-tool" id="f4-chip">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="4 17 10 11 4 5"></polyline>
+                <line x1="12" y1="19" x2="20" y2="19"></line>
+              </svg>
+              <span>create_task(title: "Audit log", to: "nova", prio: "high")</span>
+            </div>
+            <div style="font-size: 13px; color: #c8c8cc; font-family: 'Roboto Mono', monospace;">
+              ✓ Stored encrypted · Asks confirmation before risky actions
+            </div>
+          </div>
+
+          <!-- Right: ⌘⇧J Voice -->
+          <div class="assist-pane" id="f4-voice-pane">
+            <div class="key-badge" style="border-color: #00b3dd; color: #00b3dd;">⌘⇧J VOICE</div>
+            <div style="font-size: 20px; font-weight: 600;">Gemini 3.8 Live Voice</div>
+
+            <div class="orb-stage">
+              <div class="g-orb" id="f4-orb">
+                <div class="g-ring" id="f4-ring"></div>
+              </div>
+            </div>
+
+            <div class="transcript-box">
+              "Task ASG-44 created for Nova. Branch prefix initialized."
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; font-family: 'Roboto Mono', monospace; color: #00b3dd;">
+              <span>EXTENDED THINKING ACTIVE</span>
+              <span>REAL-TIME LIVE AUDIO</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        const tl = gsap.timeline({ paused: true });
+        tl.fromTo("#f4-chat-pane", 
+          { x: -50, opacity: 0 }, 
+          { x: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 
+          0.1
+        );
+        tl.fromTo("#f4-voice-pane", 
+          { x: 50, opacity: 0 }, 
+          { x: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 
+          0.3
+        );
+        tl.fromTo("#f4-chip", 
+          { scale: 0.85, opacity: 0 }, 
+          { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(1.8)" }, 
+          1.5
+        );
+        // Voice orb pulsating harmonic wave
+        tl.fromTo("#f4-orb", 
+          { scale: 0.9 }, 
+          { scale: 1.15, duration: 1.2, yoyo: true, repeat: 3, ease: "sine.inOut" }, 
+          0.5
+        );
+        tl.fromTo("#f4-ring", 
+          { rotation: 0 }, 
+          { rotation: 360, duration: 4.0, ease: "linear" }, 
+          0.5
+        );
+        window.__timelines["frame-04"] = tl;
+      </script>
+    </template>
+  </body>
+</html>

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>assign — Product Demo (30s)</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html, body {
+        width: 1920px;
+        height: 1080px;
+        margin: 0;
+        overflow: hidden;
+        background: #090a0b;
+        color: #ffffff;
+        font-family: Inter, system-ui, sans-serif;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Standalone master composition root -->
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="29.5"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- ══════════════════════════════════════════════════════════
+           SOUND EFFECTS (SFX) & NARRATION AUDIO TRACKS
+           Assigned to distinct tracks to prevent lane collisions
+           ────────────────────────────────────────────────────────── -->
+      <!-- Scene 1 Audio -->
+      <audio id="sfx-01-whoosh" src="assets/sfx/whoosh-cinematic.mp3" data-start="0.1" data-duration="2.5" data-volume="0.8" data-track-index="1"></audio>
+      <audio id="sfx-01-impact" src="assets/sfx/impact-bass-1.mp3" data-start="0.8" data-duration="2.0" data-volume="0.95" data-track-index="2"></audio>
+      <audio id="sfx-01-sparkle" src="assets/sfx/sparkle.mp3" data-start="2.2" data-duration="1.5" data-volume="0.5" data-track-index="3"></audio>
+      <audio id="voice-01" src="assets/voice/voice-01.mp3" data-start="0.3" data-duration="4.5" data-volume="1.0" data-track-index="10"></audio>
+
+      <!-- Scene 2 Audio -->
+      <audio id="sfx-02-whoosh" src="assets/sfx/whoosh-short.mp3" data-start="4.9" data-duration="0.57" data-volume="0.7" data-track-index="1"></audio>
+      <audio id="sfx-02-keypress" src="assets/sfx/key-press.mp3" data-start="6.0" data-duration="0.43" data-volume="0.6" data-track-index="2"></audio>
+      <audio id="sfx-02-click" src="assets/sfx/click.mp3" data-start="7.1" data-duration="0.37" data-volume="0.8" data-track-index="3"></audio>
+      <audio id="sfx-02-ping" src="assets/sfx/ping.mp3" data-start="7.6" data-duration="0.8" data-volume="0.7" data-track-index="4"></audio>
+      <audio id="voice-02" src="assets/voice/voice-02.mp3" data-start="5.0" data-duration="4.6" data-volume="1.0" data-track-index="10"></audio>
+
+      <!-- Scene 3 Audio -->
+      <audio id="sfx-03-whoosh" src="assets/sfx/whoosh.mp3" data-start="9.9" data-duration="0.57" data-volume="0.6" data-track-index="1"></audio>
+      <audio id="sfx-03-click" src="assets/sfx/click-soft.mp3" data-start="10.8" data-duration="0.37" data-volume="0.7" data-track-index="2"></audio>
+      <audio id="sfx-03-pop" src="assets/sfx/pop.mp3" data-start="12.2" data-duration="0.6" data-volume="0.7" data-track-index="3"></audio>
+      <audio id="sfx-03-chime" src="assets/sfx/chime.mp3" data-start="13.6" data-duration="0.8" data-volume="0.6" data-track-index="4"></audio>
+      <audio id="voice-03" src="assets/voice/voice-03.mp3" data-start="10.0" data-duration="4.0" data-volume="1.0" data-track-index="10"></audio>
+
+      <!-- Scene 4 Audio -->
+      <audio id="sfx-04-whoosh" src="assets/sfx/whoosh-short.mp3" data-start="14.7" data-duration="0.57" data-volume="0.6" data-track-index="1"></audio>
+      <audio id="sfx-04-typing" src="assets/sfx/typing.mp3" data-start="15.4" data-duration="1.54" data-volume="0.7" data-track-index="2"></audio>
+      <audio id="sfx-04-notif" src="assets/sfx/notification.mp3" data-start="17.2" data-duration="1.4" data-volume="0.7" data-track-index="3"></audio>
+      <audio id="sfx-04-sparkle" src="assets/sfx/sparkle.mp3" data-start="18.8" data-duration="1.0" data-volume="0.5" data-track-index="4"></audio>
+      <audio id="voice-04" src="assets/voice/voice-04.mp3" data-start="14.8" data-duration="4.8" data-volume="1.0" data-track-index="10"></audio>
+
+      <!-- Scene 5 Audio -->
+      <audio id="sfx-05-impact" src="assets/sfx/impact-bass-2.mp3" data-start="19.9" data-duration="2.0" data-volume="0.85" data-track-index="1"></audio>
+      <audio id="sfx-05-chime" src="assets/sfx/chime.mp3" data-start="21.0" data-duration="0.8" data-volume="0.6" data-track-index="2"></audio>
+      <audio id="sfx-05-ping" src="assets/sfx/ping.mp3" data-start="22.2" data-duration="0.8" data-volume="0.7" data-track-index="3"></audio>
+      <audio id="sfx-05-sparkle" src="assets/sfx/sparkle.mp3" data-start="23.6" data-duration="1.0" data-volume="0.5" data-track-index="4"></audio>
+      <audio id="voice-05" src="assets/voice/voice-05.mp3" data-start="20.0" data-duration="4.6" data-volume="1.0" data-track-index="10"></audio>
+
+      <!-- Scene 6 Audio -->
+      <audio id="sfx-06-riser" src="assets/sfx/riser.mp3" data-start="24.0" data-duration="2.0" data-volume="0.7" data-track-index="1"></audio>
+      <audio id="sfx-06-impact" src="assets/sfx/impact-bass-1.mp3" data-start="25.0" data-duration="2.12" data-volume="0.95" data-track-index="2"></audio>
+      <audio id="sfx-06-sparkle" src="assets/sfx/sparkle.mp3" data-start="26.8" data-duration="1.8" data-volume="0.6" data-track-index="3"></audio>
+      <audio id="voice-06" src="assets/voice/voice-06.mp3" data-start="25.0" data-duration="4.4" data-volume="1.0" data-track-index="10"></audio>
+
+      <!-- ══════════════════════════════════════════════════════════
+           SUB-COMPOSITION FRAMES (MODULAR SCENES)
+           ────────────────────────────────────────────────────────── -->
+      <!-- Frame 1: Hook & Identity -->
+      <div
+        id="frame-01"
+        class="clip"
+        data-composition-id="frame-01"
+        data-composition-src="compositions/frames/01-hook.html"
+        data-start="0"
+        data-duration="4.8"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- Frame 2: Multi-Agent Zero Collisions -->
+      <div
+        id="frame-02"
+        class="clip"
+        data-composition-id="frame-02"
+        data-composition-src="compositions/frames/02-multi-agent.html"
+        data-start="4.8"
+        data-duration="5.0"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- Frame 3: Live Kanban Engine & Auto-Routing -->
+      <div
+        id="frame-03"
+        class="clip"
+        data-composition-id="frame-03"
+        data-composition-src="compositions/frames/03-kanban.html"
+        data-start="9.8"
+        data-duration="4.8"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- Frame 4: AI Assistant & Gemini Live Voice -->
+      <div
+        id="frame-04"
+        class="clip"
+        data-composition-id="frame-04"
+        data-composition-src="compositions/frames/04-assistant.html"
+        data-start="14.6"
+        data-duration="5.2"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- Frame 5: By The Numbers (Scale, Plumbing & Security) -->
+      <div
+        id="frame-05"
+        class="clip"
+        data-composition-id="frame-05"
+        data-composition-src="compositions/frames/05-numbers.html"
+        data-start="19.8"
+        data-duration="5.0"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- Frame 6: Grand Finale & Call to Action -->
+      <div
+        id="frame-06"
+        class="clip"
+        data-composition-id="frame-06"
+        data-composition-src="compositions/frames/06-finale.html"
+        data-start="24.8"
+        data-duration="4.7"
+        data-track-index="0"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

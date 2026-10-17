@@ -346,20 +346,49 @@ const SKILL_TARGETS = {
   'claude-code': { label: 'Claude Code', where: '.claude/skills/assign-board/', steps: ['unzip assign-skill.zip -d .claude/skills/', 'claude mcp add --transport http assign-nova \\\n  https://your-assign.app/mcp \\\n  --header "Authorization: Bearer asg_…"'] },
   codex: { label: 'Codex', where: '~/.codex/skills/  ·  AGENTS.md', steps: ['unzip assign-skill.zip -d ~/.codex/skills/', '# ~/.codex/config.toml\n[mcp_servers.assign-nova]\nurl = "https://your-assign.app/mcp"\nbearer_token_env_var = "ASSIGN_TOKEN_NOVA"'] },
   cursor: { label: 'Cursor', where: 'AGENTS.md  ·  .cursor/mcp.json', steps: ['cp assign-board/AGENTS.md ./AGENTS.md', '# .cursor/mcp.json\n{ "mcpServers": { "assign-nova": {\n  "url": "https://your-assign.app/mcp",\n  "headers": { "Authorization": "Bearer asg_…" } } } }'] },
-  other: { label: 'Others', where: 'Windsurf · Copilot · Gemini · Cline', steps: ['cp assign-board/AGENTS.md ./AGENTS.md   # or your rules file', '# every snippet is in reference/clients.md'] },
+  other: { label: 'Custom client', where: 'Zed · Neovim · Aider · any MCP client', steps: ['# name your client when you add the agent — the skill zips itself for it', '# mcp.json (Streamable HTTP)\n{ "mcpServers": { "assign-nova": {\n  "url": "https://your-assign.app/mcp",\n  "headers": { "Authorization": "Bearer asg_…" } } } }', '# every snippet is in reference/clients.md'] },
 };
 const SKILL_MD = `---
 name: assign-board
 description: Connect to an "assign" Kanban board over
   MCP to pick up, work on and complete coding tasks.
+  Gain context, execute work, edit the board, add data.
 ---
 
 # assign — work the board
 
-1. whoami          → load persona + board rules
-2. get_next_task   → atomic claim, returns branch
-3. update_task     → progress at 25 / 50 / 75%
-4. complete_task   → summary, off to review
+## Workflow — execution loop
+1. whoami          → load persona + board rules (pair if asked)
+2. get_next_task   → atomic claim, returns brief + branch
+3. implement       → on <handle>/asg-<n>-<slug>, tests pass
+4. update_task     → progress at 25 / 50 / 75%
+5. complete_task   → summary + files + how to verify
+6. report_usage    → model + tokens (never estimate cost)
+
+## Abilities
+- GAIN: whoami · get_task · list_tasks · list_boards ·
+  check_inbox · get_files
+- EXECUTE: get_next_task · claim_task · start_task ·
+  update_task · post_log · complete_task · release_task
+- EDIT: update_task · add_comment · report_usage
+- ADD: create_task (board_id + title; description,
+  acceptance, priority, tags, deadline…)
+
+## Rules (prompt engineering)
+- Read the full brief before writing code.
+- Only touch tasks you own. One owner, one branch.
+- Small commits. Narrate at 25/50/75%.
+- Blocked? comment + release_task, don't stall.
+- Summaries: WHAT + WHICH files + HOW to verify.
+
+## Examples
+- Happy path: whoami → get_next_task → branch →
+  implement → update_task(50) → complete_task →
+  report_usage.
+- Blocked: get_task → add_comment(why) →
+  release_task(reason).
+- Follow-up: list_boards → create_task(title,
+  description, priority, tags).
 
 Rules: only touch tasks you own. Work on
 <handle>/asg-<n>-<slug>. Blocked? release_task.`;
@@ -383,9 +412,12 @@ function Skill() {
     <section className="l-section" id="skill" ref={ref}>
       <div className="l-container skill-grid">
         <motion.div className="col" style={{ gap: 24 }} {...inView}>
-          <span className="label"><DecryptedText text="AGENT SKILL · SKILL.MD" animateOn="view" speed={40} maxIterations={14} sequential revealDirection="start" /></span>
+          <span className="label"><DecryptedText text="AGENT SKILL · SKILL.MD · v2.0" animateOn="view" speed={40} maxIterations={14} sequential revealDirection="start" /></span>
           <h2 className="h1">Teach any AI to <em>clock in.</em></h2>
-          <p className="lede" style={{ margin: 0 }}>Download the assign skill and drop it into your agent. It explains the board, the tools and the ownership rules. Inside the app, every agent gets a personal version pre-filled with its own token, persona and client config.</p>
+          <p className="lede" style={{ margin: 0 }}>Download the assign skill and drop it into your agent. It explains the board, the tools and the ownership rules — plus worked examples and strict prompt-engineering instructions. Name any custom MCP client (Zed, Neovim, Aider…) and inside the app, every agent gets a personal v2.0 skill pre-filled with its own token, persona and client config.</p>
+          <div className="row wrap" style={{ gap: 8 }}>
+            {['Gain context', 'Execute work', 'Edit board', 'Add data'].map((a) => <span key={a} className="chip solid">{a}</span>)}
+          </div>
           <div className="row wrap" style={{ gap: 10 }}>
             <a className="btn btn-primary btn-lg" href="/skill/assign-skill.zip" download>Download skill <span className="arr">↓</span></a>
             <a className="btn btn-ghost btn-lg" href="/skill/SKILL.md" target="_blank" rel="noreferrer">View SKILL.md</a>

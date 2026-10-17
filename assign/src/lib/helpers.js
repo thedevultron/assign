@@ -25,8 +25,15 @@ export const PROVIDERS = [
   { id: 'cline', label: 'Cline', short: 'CL', vendor: 'Cline' },
   { id: 'other', label: 'Other MCP client', short: '··', vendor: 'Any' },
 ];
-export const providerLabel = (id) => PROVIDERS.find((p) => p.id === id)?.label || 'MCP client';
-export const providerShort = (id) => PROVIDERS.find((p) => p.id === id)?.short || '··';
+export const providerLabel = (id, agent) => {
+  if (id === 'other' && agent && String(agent.provider_label || '').trim()) return String(agent.provider_label).trim();
+  return PROVIDERS.find((p) => p.id === id)?.label || 'MCP client';
+};
+export const providerShort = (id, agent) => {
+  if (id === 'other' && agent && String(agent.provider_label || '').trim())
+    return String(agent.provider_label).trim().split(/[\s_-]+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase() || '··';
+  return PROVIDERS.find((p) => p.id === id)?.short || '··';
+};
 
 // The six chromatic tokens — the only colours agents can wear.
 export const AGENT_COLORS = ['#847dff', '#00b3dd', '#dd90d8', '#90b8f0', '#d1c9ff', '#4b49aa'];

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"></head>
+<body>
+<template>
+<style>
+@font-face{font-family:"Inter";font-weight:400;font-style:normal;font-display:block;src:url("assets/fonts/Inter-400.woff2") format("woff2");}
+@font-face{font-family:"Inter";font-weight:700;font-style:normal;font-display:block;src:url("assets/fonts/Inter-700.woff2") format("woff2");}
+@font-face{font-family:"Newsreader";font-weight:300;font-style:normal;src:local("Newsreader Light"),local("Newsreader"),local("Georgia"),local("Times New Roman");}
+@font-face{font-family:"Newsreader";font-weight:400;font-style:normal;src:local("Newsreader"),local("Georgia"),local("Times New Roman");}
+@font-face{font-family:"Newsreader";font-weight:400;font-style:italic;src:local("Newsreader Italic"),local("Georgia Italic"),local("Georgia");}
+@font-face{font-family:"Roboto Mono";font-weight:400;font-style:normal;src:local("Roboto Mono"),local("Consolas"),local("Courier New");}
+@font-face{font-family:"Roboto Mono";font-weight:500;font-style:normal;src:local("Roboto Mono Medium"),local("Consolas"),local("Courier New");}
+#root{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;background:#090a0b;color:#f5f5f7;font-family:Inter,-apple-system,system-ui,sans-serif;}
+.glow{position:absolute;width:1300px;height:1300px;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(132,125,255,0.12) 0%,rgba(0,179,221,0.04) 45%,transparent 70%);border-radius:50%;pointer-events:none;}
+.stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:"Roboto Mono",monospace;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#9f9fa0;margin-bottom:32px;display:inline-flex;align-items:center;gap:10px;}
+.kicker .dot{width:7px;height:7px;border-radius:50%;background:#847dff;box-shadow:0 0 10px #847dff;}
+.chip{position:absolute;font-family:"Roboto Mono",monospace;font-size:15px;font-weight:500;letter-spacing:.04em;color:#c8c8cc;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);padding:10px 18px;border-radius:9999px;opacity:0;white-space:nowrap;}
+.mark{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(0.7);opacity:0;}
+.mark svg{display:block;}
+.board{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(0.85);opacity:0;width:1180px;height:620px;background:#0f1011;border:1px solid rgba(255,255,255,0.08);border-radius:18px;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,0.6);}
+.board-head{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid rgba(255,255,255,0.08);font-family:"Roboto Mono",monospace;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#9f9fa0;}
+.board-head .title{color:#f5f5f7;font-weight:500;letter-spacing:.02em;}
+.board-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:18px 24px;height:calc(100% - 60px);}
+.col{background:#161718;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;}
+.col h4{font-family:"Roboto Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6a6b6b;margin:0 0 6px;}
+.card{background:#1c1d1e;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;font-size:13px;color:#f5f5f7;display:flex;flex-direction:column;gap:6px;}
+.card .k{font-family:"Roboto Mono",monospace;font-size:11px;color:#847dff;}
+.card .a{font-family:"Roboto Mono",monospace;font-size:11px;color:#9f9fa0;}
+.badge2{display:inline-flex;align-items:center;gap:8px;background:rgba(132,125,255,0.12);border:1px solid rgba(132,125,255,0.3);padding:6px 14px;border-radius:9999px;font-family:"Roboto Mono",monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#d1c9ff;margin-top:14px;}
+.title2{font-family:"Newsreader",Georgia,serif;font-weight:300;font-size:78px;line-height:1.05;letter-spacing:-.02em;text-align:center;max-width:1100px;opacity:0;}
+.title2 em{font-style:italic;color:#847dff;}
+</style>
+<div id="root" data-composition-id="02-one-board" data-width="1920" data-height="1080">
+  <div class="glow" id="f2-glow"></div>
+  <div class="stage">
+    <div class="kicker"><span class="dot"></span>02 / the board</div>
+    <div class="title2" id="f2-title">One board for <em>every agent.</em></div>
+  </div>
+  <!-- tool chips ring -->
+  <div class="chip" id="c0" style="left:50%;top:50%;">Claude Code</div>
+  <div class="chip" id="c1" style="left:50%;top:50%;">Cursor</div>
+  <div class="chip" id="c2" style="left:50%;top:50%;">Codex</div>
+  <div class="chip" id="c3" style="left:50%;top:50%;">Copilot</div>
+  <div class="chip" id="c4" style="left:50%;top:50%;">Windsurf</div>
+  <div class="chip" id="c5" style="left:50%;top:50%;">Gemini CLI</div>
+  <div class="chip" id="c6" style="left:50%;top:50%;">Cline</div>
+  <div class="chip" id="c7" style="left:50%;top:50%;">any MCP client</div>
+  <!-- mark -->
+  <div class="mark" id="f2-mark">
+    <svg width="120" height="120" viewBox="0 0 32 32" fill="none">
+      <rect x="0.5" y="0.5" width="31" height="31" rx="8" fill="#ffffff"/>
+      <rect x="7" y="8" width="5" height="16" rx="1.5" fill="#0f1011"/>
+      <rect x="13.5" y="8" width="5" height="10" rx="1.5" fill="#0f1011"/>
+      <rect x="20" y="8" width="5" height="6" rx="1.5" fill="#847dff"/>
+    </svg>
+  </div>
+  <!-- board -->
+  <div class="board" id="f2-board">
+    <div class="board-head"><span class="title">assign · board</span><span>live</span></div>
+    <div class="board-cols">
+      <div class="col"><h4>Backlog</h4><div class="card"><span class="k">ASG-31</span><span class="a">@sable</span></div></div>
+      <div class="col"><h4>Queued</h4><div class="card"><span class="k">ASG-42</span><span class="a">@nova</span></div><div class="card"><span class="k">ASG-44</span><span class="a">@atlas</span></div></div>
+      <div class="col"><h4>In Progress</h4><div class="card"><span class="k">ASG-38</span><span class="a">@atlas</span></div></div>
+      <div class="col"><h4>Review</h4><div class="card"><span class="k">ASG-29</span><span class="a">@nova</span></div></div>
+    </div>
+  </div>
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+const R = 300;
+const N = 8;
+for (let i=0;i<N;i++){
+  const a = (i/N)*Math.PI*2 - Math.PI/2;
+  const x = Math.cos(a)*R;
+  const y = Math.sin(a)*R;
+  const chip = document.getElementById("c"+i);
+  tl.fromTo(chip, {x:0,y:0,xPercent:-50,yPercent:-50,opacity:0,scale:0.6}, {x:x,y:y,xPercent:-50,yPercent:-50,opacity:1,scale:1,duration:0.5,ease:"back.out(1.6)"}, 0.35 + i*0.06);
+}
+// collapse into mark
+tl.to(".chip", {x:0,y:0,xPercent:-50,yPercent:-50,opacity:0,scale:0.4,duration:0.5,ease:"power3.in"}, 2.1);
+// mark pops
+tl.fromTo("#f2-mark",{scale:0.7,opacity:0},{scale:1,opacity:1,duration:0.6,ease:"back.out(1.5)"},2.45);
+// mark morphs out, board springs in
+tl.to("#f2-mark",{scale:0.6,opacity:0,duration:0.4,ease:"power2.in"},3.35);
+tl.fromTo("#f2-board",{scale:0.85,opacity:0},{scale:1,opacity:1,duration:0.8,ease:"back.out(1.3)"},3.55);
+// title
+tl.fromTo("#f2-title",{y:30,opacity:0},{y:0,opacity:1,duration:0.7,ease:"power3.out"},4.05);
+tl.fromTo(".kicker",{opacity:0},{opacity:1,duration:0.4,ease:"power3.out"},0.1);
+// ambient glow
+tl.to("#f2-glow",{scale:1.18,duration:3.0,yoyo:true,repeat:1,ease:"sine.inOut"},0.5);
+window.__timelines["02-one-board"]=tl;
+</script>
+</template>
+</body>
+</html>

@@ -1,0 +1,136 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "opencut-api": {
+      "type": "local",
+      "command": [
+        "moon",
+        "run",
+        "api:dev"
+      ],
+      "cwd": "C:/Users/Amir/opencut",
+      "enabled": true
+    },
+    "shadcn": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "shadcn-ui-mcp-server"
+      ],
+      "enabled": true
+    },
+    "21st-dev": {
+      "type": "remote",
+      "url": "https://21st.dev",
+      "headers": {
+        "x-api-key": "21st_sk_20d401213ad67da4e7a147021000486fe900adf472d878a3631752d83f27c88e"
+      },
+      "enabled": true
+    },
+    "react-bits": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "reactbits-dev-mcp-server"
+      ],
+      "enabled": true
+    },
+    "refero-styles": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "ref-tools-mcp@latest"
+      ],
+      "enabled": true
+    },
+    "diffusion-studio": {
+      "type": "remote",
+      "url": "http://127.0.0.1:3274/mcp",
+      "enabled": true
+    }
+  },
+  "agent": {
+    "plan": {
+      "description": "Plans work, explores options, and identifies risks without modifying files.",
+      "mode": "primary",
+      "prompt": "You are a planning agent. Inspect the request and relevant context, then produce a clear, prioritized plan with assumptions, risks, and verification steps. Do not modify files or run commands that change state."
+    },
+    "build": {
+      "description": "Implements requested changes, follows project conventions, and verifies the result.",
+      "mode": "primary",
+      "prompt": "You are a software implementation agent. Make precise changes that satisfy the request, follow existing project patterns, and run focused validation. Explain what changed and report any validation that could not be completed."
+    },
+    "debug": {
+      "description": "Investigates bugs, finds root causes, and applies focused fixes when requested.",
+      "mode": "subagent",
+      "prompt": "You are a debugging specialist. Reproduce or trace the reported behavior, identify the root cause from evidence, and make the smallest reliable fix when a fix is requested. Run relevant tests and clearly report findings and remaining uncertainty."
+    },
+    "orchestrator": {
+      "description": "Coordinates multi-step objectives and specialist agents through verified completion.",
+      "mode": "primary",
+      "prompt": "You are a task orchestrator. Break the objective into ordered, verifiable steps, delegate independent specialist work when useful, integrate results, and continue until the requested outcome is complete. Do not claim completion without checking the exit criteria.",
+      "permission": {
+        "task": {
+          "*": "allow"
+        }
+      }
+    },
+    "security": {
+      "description": "Reviews code for exploitable security vulnerabilities without making changes.",
+      "mode": "subagent",
+      "prompt": "You are a security reviewer. Analyze the relevant code for concrete, exploitable vulnerabilities. Prioritize findings by severity, include file and line references, explain impact and a realistic attack path, and distinguish confirmed issues from speculation. Do not modify files.",
+      "permission": {
+        "edit": "deny",
+        "bash": "ask"
+      }
+    },
+    "design": {
+      "description": "Designs and implements polished, accessible, responsive user interfaces.",
+      "mode": "primary",
+      "prompt": "You are a product design and frontend specialist. First understand the existing interface and its design system. Create a distinctive, coherent experience with strong hierarchy, responsive behavior, accessibility, and thoughtful interaction details. Preserve established project conventions and verify the result."
+    }
+  },
+  "command": {
+    "goal": {
+      "description": "Set an autonomous multi-turn objective handled by the master orchestrator.",
+      "template": "Initialize an autonomous execution loop. Your final objective is: $ARGUMENTS. Create a sequential step-by-step checklist, spawn the necessary subagents (like coder, tester, or debug) to complete each task, and iterate until the exit criteria are verified.",
+      "agent": "orchestrator"
+    },
+    "plan": {
+      "description": "Create a practical plan for a task without changing files.",
+      "template": "Analyze this task and provide a prioritized implementation plan, key assumptions, risks, and verification steps. Do not modify files.\n\nTask: $ARGUMENTS",
+      "agent": "plan"
+    },
+    "build": {
+      "description": "Implement a requested feature or change and validate it.",
+      "template": "Implement this request using the existing project conventions. Make focused changes and run relevant validation.\n\nRequest: $ARGUMENTS",
+      "agent": "build"
+    },
+    "debug": {
+      "description": "Investigate an issue, identify its root cause, and fix it.",
+      "template": "Investigate this issue from evidence, find the root cause, and make a focused fix if appropriate. Run relevant tests and report the result.\n\nIssue: $ARGUMENTS",
+      "agent": "debug",
+      "subtask": true
+    },
+    "security": {
+      "description": "Review the requested scope for security vulnerabilities without editing files.",
+      "template": "Review the relevant code for concrete security vulnerabilities. Rank findings by severity, include file and line references, and describe impact and attack path. Do not change files.\n\nScope: $ARGUMENTS",
+      "agent": "security",
+      "subtask": true
+    },
+    "design": {
+      "description": "Design or improve a user interface with polished, accessible implementation.",
+      "template": "Review the existing interface and implement a polished, responsive, accessible design for this request. Follow the established project patterns and verify the result.\n\nRequest: $ARGUMENTS",
+      "agent": "design"
+    },
+    "orchestrate": {
+      "description": "Coordinate a multi-step objective and verify completion.",
+      "template": "Coordinate this objective from start to finish. Break it into ordered steps, delegate specialist tasks where useful, integrate the results, and verify the requested outcome before reporting completion.\n\nObjective: $ARGUMENTS",
+      "agent": "orchestrator"
+    }
+  },
+  "provider": {}
+}

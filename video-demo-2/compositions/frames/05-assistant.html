@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"></head>
+<body>
+<template>
+<style>
+@font-face{font-family:"Inter";font-weight:400;font-style:normal;font-display:block;src:url("assets/fonts/Inter-400.woff2") format("woff2");}
+@font-face{font-family:"Inter";font-weight:700;font-style:normal;font-display:block;src:url("assets/fonts/Inter-700.woff2") format("woff2");}
+@font-face{font-family:"Newsreader";font-weight:300;font-style:normal;src:local("Newsreader Light"),local("Newsreader"),local("Georgia"),local("Times New Roman");}
+@font-face{font-family:"Newsreader";font-weight:400;font-style:normal;src:local("Newsreader"),local("Georgia"),local("Times New Roman");}
+@font-face{font-family:"Newsreader";font-weight:400;font-style:italic;src:local("Newsreader Italic"),local("Georgia Italic"),local("Georgia");}
+@font-face{font-family:"Roboto Mono";font-weight:400;font-style:normal;src:local("Roboto Mono"),local("Consolas"),local("Courier New");}
+@font-face{font-family:"Roboto Mono";font-weight:500;font-style:normal;src:local("Roboto Mono Medium"),local("Consolas"),local("Courier New");}
+#root{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;background:#090a0b;color:#f5f5f7;font-family:Inter,-apple-system,system-ui,sans-serif;display:flex;align-items:center;justify-content:center;}
+.glow{position:absolute;width:1200px;height:1200px;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(132,125,255,0.10) 0%,rgba(0,179,221,0.04) 45%,transparent 70%);border-radius:50%;pointer-events:none;}
+.panel{width:1100px;height:640px;background:#0f1011;border:1px solid rgba(255,255,255,0.08);border-radius:18px;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,0.6);display:flex;flex-direction:column;}
+.panel-head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08);font-family:"Roboto Mono",monospace;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#9f9fa0;}
+.panel-head .dot{width:8px;height:8px;border-radius:50%;background:#63d990;box-shadow:0 0 10px #63d990;}
+.body{flex:1;padding:24px 28px;display:flex;flex-direction:column;gap:16px;overflow:hidden;}
+.msg{background:#161718;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 18px;font-size:15px;color:#f5f5f7;max-width:80%;}
+.msg.user{align-self:flex-end;background:rgba(132,125,255,0.12);border-color:rgba(132,125,255,0.25);}
+.msg .role{font-family:"Roboto Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#847dff;margin-bottom:6px;}
+.msg.assistant .role{color:#00b3dd;}
+.composer{margin:0 24px 20px;padding:14px 18px;background:#161718;border:1px solid rgba(255,255,255,0.12);border-radius:12px;font-family:"Roboto Mono",monospace;font-size:14px;color:#f5f5f7;display:flex;align-items:center;gap:10px;}
+.composer .caret{width:8px;height:16px;background:#847dff;animation:blink 1s steps(2) infinite;}
+@keyframes blink{50%{opacity:0;}}
+.card{background:#1c1d1e;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;font-size:13px;color:#f5f5f7;display:flex;flex-direction:column;gap:4px;margin-top:8px;opacity:0;transform:translateY(8px);}
+.card .k{font-family:"Roboto Mono",monospace;font-size:11px;color:#847dff;}
+.card .a{font-family:"Roboto Mono",monospace;font-size:11px;color:#9f9fa0;}
+.kicker{position:absolute;top:48px;left:60px;font-family:"Roboto Mono",monospace;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#9f9fa0;display:inline-flex;align-items:center;gap:10px;}
+.kicker .dot{width:7px;height:7px;border-radius:50%;background:#847dff;box-shadow:0 0 10px #847dff;}
+.headline{position:absolute;bottom:48px;left:60px;font-family:"Newsreader",Georgia,serif;font-weight:300;font-size:56px;line-height:1.05;letter-spacing:-.02em;max-width:760px;opacity:0;}
+.headline em{font-style:italic;color:#847dff;}
+</style>
+<div id="root" data-composition-id="05-assistant" data-width="1920" data-height="1080">
+  <div class="glow" id="f5-glow"></div>
+  <div class="kicker"><span class="dot"></span>05 / ask the board</div>
+  <div class="panel" id="f5-panel">
+    <div class="panel-head"><span class="dot"></span>assign · assistant</div>
+    <div class="body" id="f5-body">
+      <div class="msg assistant" id="m0"><div class="role">assistant</div>How can I help?</div>
+    </div>
+    <div class="composer" id="f5-comp">
+      <span id="f5-typed"></span><span class="caret"></span>
+    </div>
+  </div>
+  <div class="headline" id="f5-headline">Ask your board <em>anything.</em></div>
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+tl.fromTo("#f5-panel",{scale:0.92,opacity:0},{scale:1,opacity:1,duration:0.7,ease:"power3.out"},0.1);
+tl.fromTo(".kicker",{opacity:0},{opacity:1,duration:0.4,ease:"power3.out"},0.1);
+// user types
+const txt = "route the auth refactor to @atlas";
+const typed = document.getElementById("f5-typed");
+let acc = "";
+tl.add(()=>{ typed.textContent = ""; },0.9);
+for (let i=0;i<txt.length;i++){
+  tl.add(()=>{ acc += txt[i]; typed.textContent = acc; }, 0.95 + i*0.06);
+}
+// submit -> user msg appears, assistant replies
+tl.add(()=>{ const m=document.createElement("div"); m.className="msg user"; m.innerHTML='<div class="role">you</div>'+txt; document.getElementById("f5-body").appendChild(m); typed.textContent=""; acc=""; }, 0.95 + txt.length*0.06 + 0.2);
+tl.fromTo("#f5-body .msg:last-child",{opacity:0,y:8},{opacity:1,y:0,duration:0.4,ease:"power3.out"},0.95 + txt.length*0.06 + 0.25);
+tl.add(()=>{ const m=document.createElement("div"); m.className="msg assistant"; m.innerHTML='<div class="role">assistant</div>Routed. I created ASG-53 for @atlas and queued it.'; document.getElementById("f5-body").appendChild(m); }, 0.95 + txt.length*0.06 + 0.9);
+tl.fromTo("#f5-body .msg:last-child",{opacity:0,y:8},{opacity:1,y:0,duration:0.4,ease:"power3.out"},0.95 + txt.length*0.06 + 0.95);
+// ticket card appears
+tl.add(()=>{ const c=document.createElement("div"); c.className="card"; c.innerHTML='<span class="k">ASG-53</span><span class="a">@atlas · Queued</span>'; document.getElementById("f5-body").appendChild(c); }, 0.95 + txt.length*0.06 + 1.5);
+tl.fromTo("#f5-body .card:last-child",{opacity:0,y:8},{opacity:1,y:0,duration:0.4,ease:"power3.out"},0.95 + txt.length*0.06 + 1.55);
+// headline
+tl.fromTo("#f5-headline",{y:30,opacity:0},{y:0,opacity:1,duration:0.7,ease:"power3.out"},1.0);
+tl.to("#f5-glow",{scale:1.18,duration:2.0,yoyo:true,repeat:1,ease:"sine.inOut"},0.5);
+window.__timelines["05-assistant"]=tl;
+</script>
+</template>
+</body>
+</html>

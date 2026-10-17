@@ -15,6 +15,18 @@ export const CLIENTS = {
   other: { label: 'Other MCP client', match: /$^/, file: 'mcp.json', skillDir: '.', context: 'AGENTS.md' },
 };
 
+export const SKILL_VERSION = '2.0.0';
+
+// Resolve the display label for an agent's client.
+// Agents on "other" can carry a custom client name (e.g. "Zed", "Neovim", "Aider").
+export function clientLabel(agent) {
+  if (!agent) return 'Other MCP client';
+  if (agent.provider && agent.provider !== 'other') return CLIENTS[agent.provider]?.label || agent.provider;
+  const custom = String(agent.provider_label || '').trim();
+  if (custom) return custom;
+  return CLIENTS.other.label;
+}
+
 /** Map an MCP initialize clientInfo.name to one of our providers. */
 export function detectProvider(clientName = '') {
   const n = String(clientName);
@@ -33,6 +45,10 @@ export function clientConfigs(agent, mcpUrl) {
   const auth = `Bearer ${token}`;
   const json = (o) => JSON.stringify(o, null, 2);
   const envVar = `ASSIGN_TOKEN_${(agent?.handle || 'AGENT').toUpperCase().replace(/[^A-Z0-9]/g, '_')}`;
+  // "other" agents may carry a custom client name — surface it in the generic snippet title.
+  const otherTitle = agent?.provider === 'other' && String(agent.provider_label || '').trim()
+    ? `${String(agent.provider_label).trim()} (MCP client)`
+    : 'Any MCP client (stdio bridge)';
   return {
     'claude-code': {
       title: 'Claude Code',
@@ -69,8 +85,11 @@ export function clientConfigs(agent, mcpUrl) {
       steps: [{ label: CLIENTS.cline.file, lang: 'json', code: json({ mcpServers: { [key]: { type: 'streamableHttp', url: mcpUrl, headers: { Authorization: auth } } } }) }],
     },
     other: {
-      title: 'Any MCP client (stdio bridge)',
-      steps: [{ label: 'mcp.json', lang: 'json', code: json({ mcpServers: { [key]: { command: 'npx', args: ['-y', 'mcp-remote', mcpUrl, '--header', `Authorization:${auth}`] } } }) }],
+      title: otherTitle,
+      steps: [
+        { label: 'mcp.json (Streamable HTTP)', lang: 'json', code: json({ mcpServers: { [key]: { url: mcpUrl, headers: { Authorization: auth } } } }) },
+        { label: '…or via stdio bridge (mcp-remote)', lang: 'json', code: json({ mcpServers: { [key]: { command: 'npx', args: ['-y', 'mcp-remote', mcpUrl, '--header', `Authorization:${auth}`] } } }) },
+      ],
     },
   };
 }
@@ -127,7 +146,7 @@ function frontmatter(name, description) {
   return `---\nname: ${name}\ndescription: ${description.replace(/\n/g, ' ')}\n---\n`;
 }
 
-const WORKFLOW = (prefix = 'ASG') => `## Workflow
+const WORKFLOW = (prefix = 'ASG') => `## Workflow — your execution loop
 1. Call \`whoami\` once per session to load your persona and the board rules. **First connection only:** if it says *PAIRING REQUIRED*, show the user the 6-digit code it returns and ask them to enter it in assign → Agents → Connect. Wait until they confirm, then call \`whoami\` again.
 2. Call \`get_next_task\`. If your queue is empty, call \`check_inbox\`, then stop and tell the user.
 3. Check out the branch given in the brief (\`git switch -c <branch>\` or \`git switch <branch>\`). Work only in that branch.
@@ -135,6 +154,46 @@ const WORKFLOW = (prefix = 'ASG') => `## Workflow
 5. When the acceptance criteria are met, call \`complete_task\` with a concise summary: what changed, files touched, how to verify.
 6. Call \`report_usage\` once before moving on — your model name and token counts for that task (from your CLI's usage display). Exact cost only if you know it; never estimate.
 7. Repeat from step 2 until the queue is empty.
+
+## Abilities — what you can GAIN, EDIT, ADD and EXECUTE
+
+You are a full actor on the board, not a read-only viewer. Everything flows through the MCP tools:
+
+- **GAIN context:** \`whoami\` (persona + rules), \`get_task\` (full brief: description, acceptance criteria, activity), \`list_tasks\` (scope \`mine\` / \`unassigned\` / \`all\`, optional \`status\`), \`list_boards\` (projects + repos), \`check_inbox\` (dispatches, digests, reminders, comments), \`get_files\` (reference files your human attached).
+- **EXECUTE work:** \`get_next_task\` (atomic claim → brief + branch), \`claim_task\` (take a specific unassigned task), \`start_task\` (move yours to In progress), \`update_task\` (progress 0–100, status, notes), \`post_log\` (streaming one-liners), \`complete_task\` (summary → Review, or Done with \`needs_review: false\`), \`release_task\` (give back with a reason when blocked).
+- **EDIT the board:** \`update_task\` (status / progress / note on tasks you own), \`add_comment\` (visible on the card), \`report_usage\` (model + tokens after finishing — feeds the human's cost charts).
+- **ADD data:** \`create_task\` needs \`board_id\` (from \`list_boards\`) + \`title\`; optional \`description\`, \`acceptance\`, \`priority\` (critical/high/medium/low), \`assignee_id\` (your id to self-assign), \`tags\`, \`deadline\`, \`repo\`, \`scheduled_at\`. Split big work into follow-ups instead of ballooning one task.
+
+## Prompt-engineering rules — follow these EXACTLY
+1. **Read before you write.** Always \`get_task\` the full brief + acceptance criteria before touching code. Never guess the spec from the title alone.
+2. **One owner, one branch.** Only touch tasks you own. Never commit to another agent's branch. If a tool says a task is owned by someone else, move on — race losers get a clear error, not a conflict.
+3. **Small, verified steps.** Keep commits small and descriptive. Run the project's test / lint suite before \`complete_task\`. If the repo has no tests, say so in the summary.
+4. **Narrate as you go.** \`update_task\` at 25/50/75% with a one-line note, or \`post_log\` for streaming lines. Humans watch the board live — silence looks like a stall.
+5. **Blocked? Release, don't linger.** If stuck (missing spec, failing dependency, need a human call), \`add_comment\` why, then \`release_task\` with the reason so someone else can pick it up.
+6. **Summaries that close the loop.** \`complete_task\` summaries say WHAT changed, WHICH files, HOW to verify. One paragraph + file list beats a wall of text.
+7. **Report usage, always.** \`report_usage\` after finishing work, even a rough token count. Never estimate cost — exact \`cost_usd\` only if you know it.
+8. **Never touch auth or teammates.** No sign-in/out, passwords, token rotation, or tasks owned by others. Ask the human instead.
+
+## Worked examples
+
+**Example 1 — happy path (claim → ship):**
+> User: "pick up my next assign task"
+1. \`whoami\` → persona loaded, rules confirmed.
+2. \`get_next_task\` → title "Rate-limit /api/search" + branch \`nova/asg-12-rate-limit-api-search\`.
+3. \`git switch -c\` that branch → implement → tests pass.
+4. \`update_task\` progress 50 with note "middleware wired, writing tests".
+5. \`complete_task\` with summary "Added 60 req/min limiter on /api/search (middleware/rateLimit.js). Verify: npm test passes; 61st request → 429." → Review.
+6. \`report_usage\` with model + tokens.
+
+**Example 2 — blocked (release cleanly):**
+1. \`get_task\` a task whose acceptance needs a Figma link that isn't attached.
+2. \`add_comment\` "Blocked: no Figma link in acceptance criteria — please attach it."
+3. \`release_task\` with reason "Missing Figma link; waiting on human." → back to Backlog, human notified.
+
+**Example 3 — follow-up (add data):**
+1. While fixing a task you notice search has no analytics.
+2. \`list_boards\` → grab the board id.
+3. \`create_task\` with title "Add search query analytics", description, priority low, tags — a new backlog task.
 
 ## Rules
 - Never modify a task you don't own; never push to another agent's branch. If a tool says a task is owned by someone else, move on.
@@ -179,18 +238,20 @@ export function personalSkill({ baseUrl, agent, workspace, persona, prefix = 'AS
   const key = serverKey(agent);
   const client = CLIENTS[agent.provider] || CLIENTS.other;
   const cfg = clientConfigs(agent, mcpUrl)[agent.provider] || clientConfigs(agent, mcpUrl).other;
-  const dir = key;
+  const dir = `${key}-v${SKILL_VERSION}`;
+  const label = clientLabel(agent);
   const skill = frontmatter(key, `You are ${agent.name} (@${agent.handle})${agent.role ? `, ${agent.role}` : ''}, on the "${workspace.name}" assign board. Use this skill to pick up, work on and complete your assigned coding tasks via the ${key} MCP server. Trigger when the user says "next task", "check assign", mentions ${prefix}-<n>, or asks you to work the queue.`)
     + `
-# ${agent.name} — assign agent
+# ${agent.name} — assign agent (skill v${SKILL_VERSION})
 
 ${persona}
 
 ## Your connection
-- MCP server key: \`${key}\` (so you can coexist with other assign agents in ${client.label})
+- MCP server key: \`${key}\` (so you can coexist with other assign agents in ${label})
 - Endpoint: \`${mcpUrl}\`
-- Client: ${client.label} — config file: \`${client.file}\`
+- Client: ${label} — config file: \`${client.file}\`
 - Branch prefix: \`${agent.handle}/\`
+- Skill version: \`${SKILL_VERSION}\` — re-download after app updates to stay in sync
 
 ${cfg.steps.map((s) => `${s.label}:\n\n\`\`\`${s.lang}\n${s.code}\n\`\`\``).join('\n\n')}
 

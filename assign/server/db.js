@@ -205,6 +205,18 @@ CREATE TABLE IF NOT EXISTS usage_events (
   created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_usage_ws ON usage_events(workspace_id, created_at);
+
+CREATE TABLE IF NOT EXISTS memories (
+  id TEXT PRIMARY KEY,
+  workspace_id TEXT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL DEFAULT 'fact',
+  title TEXT NOT NULL,
+  content TEXT NOT NULL DEFAULT '',
+  source TEXT NOT NULL DEFAULT 'user',
+  updated_at TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_memories_ws ON memories(workspace_id, updated_at);
 `);
 
 // ── migrations (additive, idempotent) ──
@@ -214,11 +226,88 @@ CREATE INDEX IF NOT EXISTS idx_usage_ws ON usage_events(workspace_id, created_at
   const hadPairing = cols.has('paired_at');
   add('paired_at', 'TEXT');
   add('pair_code', 'TEXT');
+  add('provider_label', "TEXT DEFAULT ''");
   add('pair_expires_at', 'TEXT');
   add('pair_client', "TEXT DEFAULT ''");
   add('pair_attempts', 'INTEGER DEFAULT 0');
   // Agents that existed before pairing shipped keep working.
   if (!hadPairing) db.exec('UPDATE agents SET paired_at = created_at WHERE paired_at IS NULL');
+}
+
+/* ---------------- memory store (local-first, Firebase-ready) ----------------
+ * Local today: SQLite table `memories` + mirrored MEMORY.md / memory.json files
+ * under DATA_DIR (per workspace). Later: swap `MemoryProvider` for a Firebase
+ * implementation — the REST + assistant-tool surface stays identical.
+ * The assistant auto-learns (source 'assistant'), you can add/edit/delete.
+ * Export includes memories; MEMORY.md is human-readable, memory.json is exact. */
+
+function memDir(ws) {
+  const dir = path.join(DATA_DIR, 'memory', ws);
+  fs.mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
+export const MEMORY_KINDS = ['fact', 'preference', 'project', 'person', 'note'];
+
+export function listMemories(ws, { kind } = {}) {
+  const rows = kind
+    ? db.prepare('SELECT * FROM memories WHERE workspace_id = ? AND kind = ? ORDER BY updated_at DESC LIMIT 200').all(ws, kind)
+    : db.prepare('SELECT * FROM memories WHERE workspace_id = ? ORDER BY updated_at DESC LIMIT 200').all(ws);
+  return rows;
+}
+
+export function getMemory(ws, id) {
+  return db.prepare('SELECT * FROM memories WHERE workspace_id = ? AND id = ?').get(ws, id);
+}
+
+function touchFiles(ws) {
+  try {
+    const rows = listMemories(ws);
+    const dir = memDir(ws);
+    const md = ['# MEMORY.md — what assign remembers about you', '', `Updated: ${now()}`, '', ...rows.map((m) => `## [${m.kind}] ${m.title}\n${m.content}\n_(id: ${m.id} · source: ${m.source} · updated: ${m.updated_at})_`), ''].join('\n');
+    fs.writeFileSync(path.join(dir, 'MEMORY.md'), md);
+    fs.writeFileSync(path.join(dir, 'memory.json'), JSON.stringify({ version: 1, workspace: ws, exported_at: now(), memories: rows }, null, 2));
+  } catch (e) { console.warn('[memory] mirror failed', e.message); }
+}
+
+export function saveMemory(ws, { id, kind = 'fact', title, content = '', source = 'user' }) {
+  if (!MEMORY_KINDS.includes(kind)) throw new Error(`kind must be one of ${MEMORY_KINDS.join(', ')}`);
+  const t = String(title || '').trim().slice(0, 120);
+  if (!t) throw new Error('Memory needs a title');
+  const body = String(content || '').slice(0, 4000);
+  const ts = now();
+  if (id) {
+    const cur = getMemory(ws, id);
+    if (!cur) throw new Error('Memory not found');
+    db.prepare('UPDATE memories SET kind = ?, title = ?, content = ?, updated_at = ? WHERE id = ? AND workspace_id = ?').run(kind, t, body, ts, id, ws);
+    touchFiles(ws);
+    return getMemory(ws, id);
+  }
+  const row = { id: uid('m_'), workspace_id: ws, kind, title: t, content: body, source, updated_at: ts, created_at: ts };
+  db.prepare('INSERT INTO memories (id, workspace_id, kind, title, content, source, updated_at, created_at) VALUES (@id,@workspace_id,@kind,@title,@content,@source,@updated_at,@created_at)').run(row);
+  touchFiles(ws);
+  return row;
+}
+
+export function deleteMemory(ws, id) {
+  db.prepare('DELETE FROM memories WHERE workspace_id = ? AND id = ?').run(ws, id);
+  touchFiles(ws);
+  return { ok: true };
+}
+
+export function memoryBlock(ws, limit = 40) {
+  const rows = db.prepare('SELECT kind, title, content FROM memories WHERE workspace_id = ? ORDER BY updated_at DESC LIMIT ?').all(ws, limit);
+  if (!rows.length) return '';
+  return ['Things to remember about the user (long-term memory — respect these):', ...rows.map((m) => `- [${m.kind}] ${m.title}${m.content ? `: ${m.content}` : ''}`)].join('\n');
+}
+
+export function exportMemoryFiles(ws) {
+  touchFiles(ws);
+  const dir = memDir(ws);
+  return [
+    { name: 'MEMORY.md', data: fs.readFileSync(path.join(dir, 'MEMORY.md'), 'utf8') },
+    { name: 'memory.json', data: fs.readFileSync(path.join(dir, 'memory.json'), 'utf8') },
+  ];
 }
 
 export const now = () => new Date().toISOString();

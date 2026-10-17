@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"></head>
+<body>
+<template>
+<style>
+@font-face{font-family:"Inter";font-weight:400;font-style:normal;font-display:block;src:url("assets/fonts/Inter-400.woff2") format("woff2");}
+@font-face{font-family:"Inter";font-weight:700;font-style:normal;font-display:block;src:url("assets/fonts/Inter-700.woff2") format("woff2");}
+@font-face{font-family:"Newsreader";font-weight:300;font-style:normal;src:local("Newsreader Light"),local("Newsreader"),local("Georgia"),local("Times New Roman");}
+@font-face{font-family:"Newsreader";font-weight:400;font-style:normal;src:local("Newsreader"),local("Georgia"),local("Times New Roman");}
+@font-face{font-family:"Newsreader";font-weight:400;font-style:italic;src:local("Newsreader Italic"),local("Georgia Italic"),local("Georgia");}
+@font-face{font-family:"Roboto Mono";font-weight:400;font-style:normal;src:local("Roboto Mono"),local("Consolas"),local("Courier New");}
+@font-face{font-family:"Roboto Mono";font-weight:500;font-style:normal;src:local("Roboto Mono Medium"),local("Consolas"),local("Courier New");}
+#root{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;background:#090a0b;color:#f5f5f7;font-family:Inter,-apple-system,system-ui,sans-serif;display:flex;align-items:center;justify-content:center;}
+.glow{position:absolute;width:1200px;height:1200px;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(132,125,255,0.12) 0%,rgba(0,179,221,0.04) 45%,transparent 70%);border-radius:50%;pointer-events:none;}
+.flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(229,72,77,0.28) 0%,transparent 60%);opacity:0;pointer-events:none;}
+.stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;}
+.badge{font-family:"Roboto Mono",monospace;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#9f9fa0;display:inline-flex;align-items:center;gap:10px;margin-bottom:28px;}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:#847dff;box-shadow:0 0 10px #847dff;}
+.statement{font-family:"Newsreader",Georgia,serif;font-weight:300;font-size:96px;line-height:1.05;letter-spacing:-.02em;text-align:center;max-width:1500px;color:#f5f5f7;opacity:0;}
+.statement em{font-style:italic;color:#ff6b6b;}
+</style>
+<div id="root" data-composition-id="01-collision" data-width="1920" data-height="1080">
+  <div class="glow" id="f1-glow"></div>
+  <div class="flash" id="f1-flash"></div>
+  <div class="stage" id="f1-s1">
+    <div class="badge"><span class="dot"></span>01 / the problem</div>
+    <div class="statement" id="f1-l1">Four agents.</div>
+  </div>
+  <div class="stage" id="f1-s2" style="opacity:0">
+    <div class="badge"><span class="dot"></span>01 / the problem</div>
+    <div class="statement" id="f1-l2">Four chat windows.</div>
+  </div>
+  <div class="stage" id="f1-s3" style="opacity:0">
+    <div class="badge"><span class="dot"></span>01 / the problem</div>
+    <div class="statement" id="f1-l3">And two of them just edited the <em>same file.</em></div>
+  </div>
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+tl.fromTo("#f1-s1",{opacity:0},{opacity:1,duration:0.3,ease:"power3.out"},0.1);
+tl.fromTo("#f1-l1",{y:40,opacity:0},{y:0,opacity:1,duration:0.6,ease:"power3.out"},0.15);
+tl.to("#f1-s1",{opacity:0,duration:0.4,ease:"power2.in"},1.35);
+tl.fromTo("#f1-s2",{opacity:0},{opacity:1,duration:0.3,ease:"power3.out"},1.7);
+tl.fromTo("#f1-l2",{y:40,opacity:0},{y:0,opacity:1,duration:0.6,ease:"power3.out"},1.75);
+tl.to("#f1-s2",{opacity:0,duration:0.4,ease:"power2.in"},2.95);
+tl.fromTo("#f1-s3",{opacity:0},{opacity:1,duration:0.3,ease:"power3.out"},3.3);
+tl.fromTo("#f1-l3",{y:40,opacity:0},{y:0,opacity:1,duration:0.6,ease:"power3.out"},3.35);
+tl.to("#f1-flash",{opacity:1,duration:0.15,ease:"power2.in"},3.55);
+tl.to("#f1-flash",{opacity:0,duration:0.9,ease:"power2.out"},3.7);
+tl.to("#f1-glow",{scale:1.25,duration:2.2,yoyo:true,repeat:1,ease:"sine.inOut"},0.2);
+tl.to("#root",{backgroundColor:"#000000",duration:0.6,ease:"power2.in"},4.6);
+window.__timelines["01-collision"]=tl;
+</script>
+</template>
+</body>
+</html>

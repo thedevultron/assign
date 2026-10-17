@@ -74,9 +74,16 @@ class VoiceSession {
     }
     const Ctx = window.AudioContext || window.webkitAudioContext;
     this.inCtx = new Ctx();
-    const url = URL.createObjectURL(new Blob([WORKLET], { type: 'application/javascript' }));
-    await this.inCtx.audioWorklet.addModule(url);
-    URL.revokeObjectURL(url);
+    // same-origin file keeps the strict CSP (script-src 'self') happy; blob is only a dev fallback
+    let mod;
+    try {
+      await this.inCtx.audioWorklet.addModule('/capture-worklet.js');
+      mod = 'static';
+    } catch {
+      const url = URL.createObjectURL(new Blob([WORKLET], { type: 'application/javascript' }));
+      try { await this.inCtx.audioWorklet.addModule(url); mod = 'blob'; } finally { URL.revokeObjectURL(url); }
+    }
+    this.workletMod = mod;
     this.src = this.inCtx.createMediaStreamSource(this.stream);
     this.node = new AudioWorkletNode(this.inCtx, 'assign-capture');
     this.node.port.onmessage = (e) => {

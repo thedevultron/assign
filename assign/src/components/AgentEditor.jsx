@@ -24,7 +24,7 @@ Rules:
 - If blocked, post a comment explaining why and release the task.
 - Summarise what changed and how to verify it when you finish.`;
 
-const blank = (initial = {}) => ({ name: '', handle: '', color: AGENT_COLORS[Math.floor(Math.random() * AGENT_COLORS.length)], avatar: '', role: '', personality: '', system_prompt: '', provider: 'claude-code', skills: [], webhook_url: '', max_concurrent: 3, paused: false, ...initial });
+const blank = (initial = {}) => ({ name: '', handle: '', color: AGENT_COLORS[Math.floor(Math.random() * AGENT_COLORS.length)], avatar: '', role: '', personality: '', system_prompt: '', provider: 'claude-code', provider_label: '', skills: [], webhook_url: '', max_concurrent: 3, paused: false, ...initial });
 
 function FilesEditor({ agentId }) {
   const { toast } = useStore.getState();
@@ -162,11 +162,16 @@ export function AgentEditor() {
               ))}
             </div>
           </Field>
+          {f.provider === 'other' ? (
+            <Field label="Custom client name" hint="e.g. Zed, Neovim, Aider — shows on cards and inside the skill.">
+              <input className="input" value={f.provider_label || ''} onChange={set('provider_label')} placeholder="Name your MCP client" maxLength={60} />
+            </Field>
+          ) : null}
           <AnimatePresence initial={false}>
             {sameTool.length > 0 && (
               <motion.div className="infobox" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={quick}>
                 <Icon name="layers" size={16} style={{ flex: 'none', marginTop: 2 }} />
-                <span>{sameTool.map((a) => a.name).join(', ')} also run{sameTool.length === 1 ? 's' : ''} in {providerLabel(f.provider)}. That’s fine — this agent gets its own MCP server key <span className="mono" style={{ color: '#fff' }}>assign-{handle || 'handle'}</span> and token, so they never collide.</span>
+                <span>{sameTool.map((a) => a.name).join(', ')} also run{sameTool.length === 1 ? 's' : ''} in {providerLabel(f.provider, f)}. That’s fine — this agent gets its own MCP server key <span className="mono" style={{ color: '#fff' }}>assign-{handle || 'handle'}</span> and token, so they never collide.</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -346,7 +351,7 @@ export function ConnectPanel() {
             <Avatar agent={agent} size={44} status />
             <div className="col" style={{ gap: 4, minWidth: 0 }}>
               <span className="h3" style={{ lineHeight: 1 }}>Connect <em>{agent.name}</em></span>
-              <span className="label">{providerLabel(agent.provider)} · MCP server key assign-{agent.handle}</span>
+              <span className="label">{providerLabel(agent.provider, agent)} · MCP server key assign-{agent.handle}</span>
             </div>
             <span className="spacer" />
             <span className={cx('chip', online && agent.paired && 'ok', requirePairing && !agent.paired && 'iris')}>{requirePairing && !agent.paired ? (agent.pair_pending ? 'Pairing requested' : 'Not paired yet') : online ? `Live · ${agent.client_name || 'connected'}` : agent.last_seen_at ? `Seen ${relTime(agent.last_seen_at, now)}` : 'Waiting for first connection'}</span>
@@ -358,7 +363,7 @@ export function ConnectPanel() {
             {data && (
               <>
                 {data.client?.mismatch ? (
-                  <div className="warnbox"><Icon name="alert" size={16} style={{ flex: 'none', marginTop: 2 }} /><span>This token was last used from <b style={{ fontWeight: 400, color: '#fff' }}>{data.client.name}</b>, which looks like {providerLabel(data.client.detected)} — not {providerLabel(agent.provider)}. If that’s intended, switch the agent’s tool so the right config and skill are generated.</span></div>
+                  <div className="warnbox"><Icon name="alert" size={16} style={{ flex: 'none', marginTop: 2 }} /><span>This token was last used from <b style={{ fontWeight: 400, color: '#fff' }}>{data.client.name}</b>, which looks like {providerLabel(data.client.detected)} — not {providerLabel(agent.provider, agent)}. If that’s intended, switch the agent’s tool so the right config and skill are generated.</span></div>
                 ) : null}
 
                 <section className="col" style={{ gap: 12 }}>
@@ -373,7 +378,7 @@ export function ConnectPanel() {
                   </div>
                   <AnimatePresence mode="wait">
                     <motion.div key={tab} className="col" style={{ gap: 10 }} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.2 }}>
-                      {tab !== agent.provider ? <div className="small muted">This agent is set up for {providerLabel(agent.provider)}. Using {providerLabel(tab)} instead? <button className="link" onClick={() => useStore.getState().saveAgent({ id: agent.id, provider: tab })}>Switch the agent to {providerLabel(tab)}</button></div> : null}
+                      {tab !== agent.provider ? <div className="small muted">This agent is set up for {providerLabel(agent.provider, agent)}. Using {providerLabel(tab)} instead? <button className="link" onClick={() => useStore.getState().saveAgent({ id: agent.id, provider: tab })}>Switch the agent to {providerLabel(tab)}</button></div> : null}
                       {conf?.steps.map((s, i) => <CodeBlock key={i} code={s.code} lang={s.lang} title={s.label} />)}
                     </motion.div>
                   </AnimatePresence>

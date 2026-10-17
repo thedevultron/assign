@@ -1,0 +1,57 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "url": "https://mcp.supabase.com/mcp"
+    },
+    "opencutapi": {
+      "type": "local",
+      "command": [
+        "moon",
+        "run",
+        "api:dev"
+      ],
+      "cwd": "C:/Users/Amir/opencut",
+      "enabled": true
+    },
+    "shadcn": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "shadcn-ui-mcp-server"
+      ],
+      "enabled": true
+    },
+    "21st-dev": {
+      "type": "remote",
+      "url": "https://21st.dev",
+      "headers": {
+        "x-api-key": "21st_sk_20d401213ad67da4e7a147021000486fe900adf472d878a3631752d83f27c88e"
+      },
+      "enabled": true
+    },
+    "react-bits": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "reactbits-dev-mcp-server"
+      ],
+      "enabled": true
+    },
+    "refero-styles": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "ref-tools-mcp@latest"
+      ],
+      "enabled": true
+    },
+    "diffusion-studio": {
+      "type": "remote",
+      "url": "http://127.0.0.1:3274/mcp",
+      "enabled": true
+    }
+  }
+}

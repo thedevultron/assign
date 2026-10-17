@@ -249,6 +249,9 @@ function StepAgents({ d, setArr }) {
                     <select className="input" value={a.role} onChange={(e) => update(a.id, { role: e.target.value })} aria-label="Role">
                       {(ROLE_PRESETS.includes(a.role) ? ROLE_PRESETS : [a.role, ...ROLE_PRESETS]).map((r) => <option key={r}>{r}</option>)}
                     </select>
+                    {t === 'other' ? (
+                      <input className="input" value={a.provider_label || ''} onChange={(e) => update(a.id, { provider_label: e.target.value })} placeholder="Client name (e.g. Zed)" maxLength={60} aria-label="Custom client name" style={{ maxWidth: 150 }} />
+                    ) : null}
                     <span className="mono muted trunc" style={{ fontSize: 10.5 }} title={`MCP key assign-${h} · branches ${h}/asg-*`}>assign-{h}</span>
                     <button className="icon-btn sm" onClick={() => removeA(a.id)} aria-label={`Remove ${a.name}`}><Icon name="close" size={15} /></button>
                   </motion.div>

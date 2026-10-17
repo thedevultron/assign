@@ -115,12 +115,16 @@ const SECTIONS = [
       ]} />
       <p>To turn pairing off (not recommended on shared servers), go to <b>Settings → Routing & security → Require pairing</b>.</p>
     </>) },
-    { id: 'skill', title: 'The skill', body: () => (<>
-      <p>A skill is a small folder that teaches an AI how to work your board: the workflow, the tool reference, ownership rules and a ready-made config.</p>
+    { id: 'skill', title: 'The skill (v2.0)', body: () => (<>
+      <p>A skill is a versioned folder that teaches an AI how to work your board: the execution loop, the GAIN / EXECUTE / EDIT / ADD abilities, strict prompt-engineering rules, worked examples, the tool reference, ownership rules and a ready-made config.</p>
       <Table head={['Flavour', 'Where', 'Contains']} rows={[
-        ['Personal', 'Agents → Skill, or the Connect panel', <>SKILL.md with that agent’s persona, <C>reference/tools.md</C>, <C>reference/clients.md</C>, AGENTS.md and the client config with its token</>],
-        ['Generic', <><a className="link" href="/skill/assign-skill.zip" download>assign-skill.zip</a> (public, no secrets)</>, 'Teaches any AI how to connect to an assign board and work tasks'],
+        ['Personal v2.0', 'Agents → Skill, or the Connect panel', <>SKILL.md with that agent's persona, per-agent install instructions, <C>reference/tools.md</C>, <C>reference/clients.md</C>, AGENTS.md and the client config with its token — folder named <C>assign-&lt;handle&gt;-v2.0.0</C></>],
+        ['Generic', <><a className="link" href="/skill/assign-skill.zip" download>assign-skill.zip</a> (public, no secrets)</>, 'Teaches any AI how to connect to an assign board: execution loop, abilities, rules, examples'],
       ]} />
+      <h3>Custom MCP clients</h3>
+      <p>Pick <b>Other MCP client</b> when adding an agent and name it — Zed, Neovim, Aider, anything. The name shows on cards, in errors and teammates lists, and the personal skill zips itself with that client's title and both Streamable-HTTP + stdio-bridge snippets.</p>
+      <h3>Re-download after updates</h3>
+      <p>Skills carry a version (<C>v2.0.0</C>). When the app changes the workflow, re-download from Agents → Skill so your agent runs the latest instructions.</p>
       <h3>Where to unzip it</h3>
       <Table head={['Tool', 'Skill folder', 'Context file']} rows={[
         ['Claude Code', '.claude/skills', 'CLAUDE.md'], ['Cursor', '.cursor/rules', 'AGENTS.md'], ['Codex', '~/.codex/skills', 'AGENTS.md'],
@@ -208,6 +212,7 @@ const SECTIONS = [
         ['Offline start', 'Sending a task works even when the agent is not connected: it waits Queued and starts automatically the moment the agent connects and asks for work.'],
         ['Safe actions', 'Deletes, moving work to Done, token rotations and settings changes ask for your confirmation first — in chat via an approval card, in voice by asking you.'],
         ['The ball', 'Minimising a voice session drops it to a floating ball in the corner. It keeps listening and acting; click it to return.'],
+        ['Memory', 'The assistant remembers durable facts, preferences and project context across sessions (Settings → AI → Memory). Stored locally in MEMORY.md / memory.json under DATA_DIR — Firebase-ready.'],
       ]} />
       <p><b>Hard limits.</b> The assistant can never sign in or out, create or delete your account, or change your email or password — those live in <b>Settings → Account</b> and have no tools.</p>
       <p><b>Providers & keys.</b> In <b>Settings → AI</b> you paste an API key for Google, OpenAI, Anthropic, OpenRouter, Groq, xAI, Mistral or DeepSeek. Keys are validated on save, stored on the server <b>encrypted with <C>AI_SECRET</C></b> and never sent to the browser. The chat model, thinking effort, voice model, voice and confirmation behaviour are all adjustable there. Voice requires a Google key.</p>
@@ -250,7 +255,7 @@ const SECTIONS = [
     </>) },
     { id: 'shortcuts', title: 'Keyboard shortcuts', body: () => (
       <Table head={['Keys', 'Action']} rows={[
-        ['N', 'New task'], ['⌘K or /', 'Search & commands'], ['⌘J', 'Open the assistant'], ['⌘⇧J', 'Start voice'], ['[  ]', 'Collapse or expand the sidebar'],
+        ['N', 'New task'], ['⌘K or /', 'Search & commands'], ['⌘J', 'Open the assistant'], ['⌘I', 'Start voice'], ['[  ]', 'Collapse or expand the sidebar'],
         ['G then O', 'Overview'], ['G then N', 'Analytics'], ['G then A', 'Agents'], ['G then B', 'First project board'],
         ['G then U', 'Automations'], ['G then Y', 'Activity'], ['G then S', 'Settings'], ['⌘↵', 'Apply quick actions'], ['Esc', 'Close panels'],
       ].map(([k, a]) => [<span className="kbd">{k}</span>, a])} />

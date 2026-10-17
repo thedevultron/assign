@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { db, now, uid, hydrate, getSettings, saveSettings, slugify } from './db.js';
-import { CLIENTS } from './skill.js';
+import { CLIENTS, clientLabel } from './skill.js';
 
 /* ---------------- realtime bus (SSE, one channel per workspace) ---------------- */
 const channels = new Map(); // ws -> Set(res)
@@ -179,7 +179,7 @@ export const claimTask = db.transaction((ws, agent, taskId, { from = ['backlog',
   if (!t) return { ok: false, error: `Task ${taskId} not found` };
   if (t.assignee_id && t.assignee_id !== agent.id) {
     const owner = getAgent(ws, t.assignee_id);
-    return { ok: false, error: `${keyOf(ws, t)} is owned by @${owner?.handle || 'another agent'}${owner ? ` (${CLIENTS[owner.provider]?.label || owner.provider})` : ''}. Leave it alone — call get_next_task for your own work.`, owner };
+    return { ok: false, error: `${keyOf(ws, t)} is owned by @${owner?.handle || 'another agent'}${owner ? ` (${clientLabel(owner)})` : ''}. Leave it alone — call get_next_task for your own work.`, owner };
   }
   if (t.assignee_id === agent.id && allowOwn) return { ok: true, task: t, already: true };
   if (!from.includes(t.status)) return { ok: false, error: `${keyOf(ws, t)} is ${t.status.replace('_', ' ')} and can't be claimed.` };

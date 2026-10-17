@@ -67,6 +67,13 @@ export default function AISettings({ Row }) {
   const { saveSettings } = useAI.getState();
   const [models, setModels] = useState(null);
   const [custom, setCustom] = useState(false);
+  const [memories, setMemories] = useState([]);
+  const [memKind, setMemKind] = useState('fact');
+  const [memTitle, setMemTitle] = useState('');
+  const [memContent, setMemContent] = useState('');
+  const [memBusy, setMemBusy] = useState(false);
+  const loadMemories = async () => { try { const r = await api.get('/memory'); setMemories(r.memories || []); } catch { setMemories([]); } };
+  useEffect(() => { loadMemories(); }, []);
   useEffect(() => { if (!config) useAI.getState().loadConfig(); }, []); // eslint-disable-line
   const st = config?.settings;
   const prov = config?.providers?.find((p) => p.id === st?.chat_provider);
@@ -89,7 +96,7 @@ export default function AISettings({ Row }) {
   return (
     <>
       <Row title="API keys" desc="Your keys are encrypted on this server and never sent to the browser. Google powers voice; any provider can power chat. A built-in Google key can be supplied by the server admin — adding your own always overrides it." split>
-        <div className="col" style={{ gap: 8 }}>
+        <div className="col" style={{ gap: 8, maxHeight: 260, overflowY: 'auto', paddingRight: 4 }}>
           {config.providers.map((p, i) => <ProviderRow key={p.id} p={p} i={i} />)}
         </div>
       </Row>
@@ -141,12 +148,32 @@ export default function AISettings({ Row }) {
           <span className="tiny muted">{vm?.label} · {vm?.thinking ? 'reasons before acting, best for multi-step requests' : 'lowest latency'}</span>
         </div>
       </Row>
-      <Row title="Ask before risky actions" desc="Deletes, approvals, token changes and settings changes need your OK, as a button in chat or a spoken yes in voice.">
-        <Toggle on={st.confirm_risky} onChange={(v) => saveSettings({ confirm_risky: v })} label="Ask before risky actions" />
+
+      <Row title="Memory (long-term)" desc="What assign remembers about you. Stored locally in MEMORY.md / memory.json — Firebase-ready. The assistant auto-learns when this is on.">
+        <div className="col" style={{ gap: 12 }}>
+          <Toggle on={st.memory_learn !== false} onChange={(v) => saveSettings({ memory_learn: v })} label="Auto-learn" />
+          <div className="col" style={{ gap: 6, maxHeight: 220, overflowY: 'auto', paddingRight: 4 }}>
+            {memories.length === 0 ? <span className="tiny muted">Nothing remembered yet.</span> : memories.map((m) => (
+              <div key={m.id} className="row" style={{ gap: 8, padding: '6px 0', borderBottom: '1px solid var(--line-2)' }}>
+                <span className="chip-mini">{m.kind}</span>
+                <span style={{ color: '#fff', fontSize: 13, flex: 1, minWidth: 0 }} className="trunc">{m.title}</span>
+                <button className="icon-btn xs" aria-label="Delete memory" onClick={async () => { await api.del(`/memory/${m.id}`); await loadMemories(); }}><Icon name="trash" size={12} /></button>
+              </div>
+            ))}
+          </div>
+          <form className="col" style={{ gap: 8 }} onSubmit={async (e) => { e.preventDefault(); if (!memTitle.trim()) return; setMemBusy(true); try { await api.post('/memory', { kind: memKind, title: memTitle.trim(), content: memContent.trim() }); setMemTitle(''); setMemContent(''); await loadMemories(); } finally { setMemBusy(false); } }}>
+            <div className="row" style={{ gap: 8 }}>
+              <select className="input" style={{ width: 110 }} value={memKind} onChange={(e) => setMemKind(e.target.value)} aria-label="Memory kind">
+                {['fact','preference','project','person','note'].map((k) => <option key={k} value={k}>{k}</option>)}
+              </select>
+              <input className="input" style={{ flex: 1 }} placeholder="Title" value={memTitle} onChange={(e) => setMemTitle(e.target.value)} aria-label="Memory title" />
+            </div>
+            <textarea className="textarea" rows={2} placeholder="Detail (optional)" value={memContent} onChange={(e) => setMemContent(e.target.value)} aria-label="Memory content" />
+            <Button type="submit" size="sm" loading={memBusy} disabled={!memTitle.trim()}>Add memory</Button>
+          </form>
+        </div>
       </Row>
-      <Row title="Follow along" desc="While the assistant works, the app jumps to the board and highlights the card it’s changing.">
-        <Toggle on={st.follow_along} onChange={(v) => saveSettings({ follow_along: v })} label="Follow along" />
-      </Row>
+
     </>
   );
 }

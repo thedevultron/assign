@@ -4,13 +4,13 @@
 import crypto from 'node:crypto';
 import { db, now, uid, hydrate, nextTaskNumber, getWorkspace } from './db.js';
 import { getTask, getAgent, logActivity, emit, emitTask, taskBrief, keyOf, claimTask, branchFor, publicAgent, isPaired, STATUSES, PRIORITIES, PRIO_ORDER, applyStartPolicy } from './core.js';
-import { CLIENTS, detectProvider, serverKey } from './skill.js';
+import { CLIENTS, detectProvider, serverKey, clientLabel } from './skill.js';
 
 const SUPPORTED = ['2025-06-18', '2025-03-26', '2024-11-05'];
 
 export function persona(agent) {
   const ws = getWorkspace(agent.workspace_id);
-  const client = CLIENTS[agent.provider]?.label || 'an MCP client';
+  const client = clientLabel(agent) || 'an MCP client';
   return [
     `You are ${agent.name} (@${agent.handle}), an AI coding agent on the "${ws?.name || 'assign'}" board in assign, running in ${client}.`,
     agent.role ? `Role: ${agent.role}.` : '',
@@ -57,7 +57,7 @@ function ownTask(agent, id, verb = 'change') {
   if (t.assignee_id === agent.id) return t;
   if (t.assignee_id) {
     const owner = getAgent(ws, t.assignee_id);
-    throw new ToolError(`You can't ${verb} ${keyOf(ws, t)} — it's owned by @${owner?.handle || 'another agent'}${owner ? ` (${CLIENTS[owner.provider]?.label || owner.provider})` : ''}. Pick up your own work with get_next_task.`);
+    throw new ToolError(`You can't ${verb} ${keyOf(ws, t)} — it's owned by @${owner?.handle || 'another agent'}${owner ? ` (${clientLabel(owner)})` : ''}. Pick up your own work with get_next_task.`);
   }
   if (t.status === 'done') throw new ToolError(`${keyOf(ws, t)} is already done.`);
   const r = claimTask(ws, agent, t.id, { from: ['backlog', 'queued', 'in_progress', 'review'] });
@@ -113,9 +113,9 @@ const pairText = (agent, code) => [
 
 const handlers = {
   whoami: (agent) => {
-    const others = db.prepare('SELECT name, handle, provider FROM agents WHERE workspace_id = ? AND id != ?').all(agent.workspace_id, agent.id);
+    const others = db.prepare('SELECT name, handle, provider, provider_label FROM agents WHERE workspace_id = ? AND id != ?').all(agent.workspace_id, agent.id);
     return ok({ id: agent.id, name: agent.name, handle: agent.handle, provider: agent.provider, server_key: serverKey(agent), role: agent.role, personality: agent.personality, system_prompt: agent.system_prompt, skills: agent.skills, teammates: others },
-      `${persona(agent)}\n\nTeammates on this board: ${others.length ? others.map((o) => `@${o.handle} (${CLIENTS[o.provider]?.label || o.provider})`).join(', ') : 'none yet'}.`);
+      `${persona(agent)}\n\nTeammates on this board: ${others.length ? others.map((o) => `@${o.handle} (${clientLabel(o)})`).join(', ') : 'none yet'}.`);
   },
   list_tasks: (agent, { scope = 'mine', status, limit = 25 }) => {
     const ws = agent.workspace_id;

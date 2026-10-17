@@ -21,7 +21,7 @@ const VOICE_EFFORTS = ['low', 'medium', 'high'];
 export const AI_DEFAULTS = {
   chat_provider: 'google', chat_model: 'gemini-3.5-flash-lite', chat_effort: 'medium',
   voice_model: 'gemini-3.8-live-extended-thinking', voice_effort: 'medium', voice_name: 'Kore',
-  confirm_risky: true, follow_along: true,
+  confirm_risky: true, follow_along: true, memory_learn: true,
 };
 const PREFERRED = {
   openai: [/^gpt-5(\.\d+)?-mini$/, /^gpt-5(\.\d+)?$/, /^gpt-4\.1-mini$/, /^gpt-4o-mini$/, /^gpt/],
@@ -68,6 +68,7 @@ r.patch('/settings', (req, res) => {
   if ('voice_name' in b) { if (!VOICES.includes(b.voice_name)) return bad(res, 400, 'Unknown voice'); next.voice_name = b.voice_name; }
   if ('confirm_risky' in b) next.confirm_risky = !!b.confirm_risky;
   if ('follow_along' in b) next.follow_along = !!b.follow_along;
+  if ('memory_learn' in b) next.memory_learn = !!b.memory_learn;
   saveAi(req.ws, next);
   res.json(config(req.ws));
 });

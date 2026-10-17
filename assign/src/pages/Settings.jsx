@@ -10,6 +10,7 @@ import { PRIORITIES, PROVIDERS, SEND_MODES, PRESET_META, TIMEZONES, guessTimezon
 const SECTIONS = [
   { id: 'account', label: 'Account', icon: 'user' },
   { id: 'workspace', label: 'Workspace', icon: 'board' },
+  { id: 'general', label: 'General', icon: 'settings' },
   { id: 'sending', label: 'Sending', icon: 'send' },
   { id: 'routing', label: 'Routing & security', icon: 'route' },
   { id: 'ai', label: 'AI assistant', icon: 'magic' },
@@ -145,7 +146,19 @@ export default function Settings({ section }) {
             </Row>
           </Section>
 
-          <Section id="sending" i={2} title="Sending" desc="When a task is ready, how quickly should it reach the agent? Pick a preset or tune each priority.">
+          <Section id="general" i={2} title="General" desc="Workspace-wide preferences and display options.">
+            <Row title="Compact sidebar" desc="Collapse the sidebar to icons only by default." split>
+              <Toggle on={useStore((s) => s.ui.collapsed)} onChange={() => useStore.getState().toggleCollapsed()} label="Compact sidebar" />
+            </Row>
+            <Row title="Follow along" desc="While the assistant works, the app jumps to the board and highlights the card it’s changing.">
+              <Toggle on={settings.follow_along !== false} onChange={(v) => saveSetting({ follow_along: v })} label="Follow along" />
+            </Row>
+            <Row title="Ask before risky actions" desc="Deletes, approvals, token changes and settings changes need your OK.">
+              <Toggle on={settings.confirm_risky !== false} onChange={(v) => saveSetting({ confirm_risky: v })} label="Ask before risky actions" />
+            </Row>
+          </Section>
+
+          <Section id="sending" i={3} title="Sending" desc="When a task is ready, how quickly should it reach the agent? Pick a preset or tune each priority.">
             <div className="preset-grid">
               {Object.entries(PRESET_META).map(([id, m]) => {
                 const on = settings.preset === id;
@@ -185,7 +198,7 @@ export default function Settings({ section }) {
             <p className="small muted">You can always override per task with “Send now”, “Schedule” or “Hold”.</p>
           </Section>
 
-          <Section id="routing" i={3} title="Routing & security" desc="How tasks marked “Auto” pick an agent, which coding tools your team uses, and how agents prove who they are.">
+          <Section id="routing" i={4} title="Routing & security" desc="How tasks marked “Auto” pick an agent, which coding tools your team uses, and how agents prove who they are.">
             <Row title="Auto-routing" desc={ROUTING.find((r) => r.value === (settings.routing || 'smart'))?.desc}>
               <Seg options={ROUTING.map(({ value, label }) => ({ value, label }))} value={settings.routing || 'smart'} onChange={(v) => saveSetting({ routing: v })} block />
             </Row>
@@ -202,10 +215,10 @@ export default function Settings({ section }) {
             </Row>
           </Section>
 
-          <Section id="ai" i={4} title="AI assistant" desc="Chat and voice that can read and change everything in assign, with your keys and your rules.">
+          <Section id="ai" i={5} title="AI assistant" desc="Chat and voice that can read and change everything in assign, with your keys and your rules.">
             <AISettings Row={Row} />
           </Section>
-          <Section id="help" i={5} title="Tutorial & help" desc="Everything you picked during setup has a manual.">
+          <Section id="help" i={6} title="Tutorial & help" desc="Everything you picked during setup has a manual.">
             <Row title="Product tutorial" desc="An eight-step, hands-on tour — your progress is saved on this device." split>
               <Button variant="ghost" arrow={false} onClick={() => { location.hash = '#/tutorial'; }}><Icon name="rocket" size={14} />Open tutorial</Button>
             </Row>
@@ -222,7 +235,7 @@ export default function Settings({ section }) {
               <Button variant="ghost" arrow={false} onClick={() => { location.hash = '#/docs'; }}><Icon name="file" size={14} />Read the docs</Button>
             </Row>
           </Section>
-          <Section id="data" i={6} title="Data & danger zone" desc="Your data is yours. Export everything as JSON at any time.">
+          <Section id="data" i={7} title="Data & danger zone" desc="Your data is yours. Export everything as JSON at any time.">
             <Row title="Export workspace" desc="Boards, agents (without keys), tasks, automations and history." split>
               <Button variant="ghost" arrow={false} onClick={() => api.download('/export', `assign-export-${new Date().toISOString().slice(0, 10)}.json`).catch(fail)}><Icon name="download" size={14} />Download JSON</Button>
             </Row>

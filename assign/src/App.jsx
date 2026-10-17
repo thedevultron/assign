@@ -62,13 +62,17 @@ export default function App({ route }) {
     const onKey = (e) => {
       const tag = (e.target.tagName || '').toLowerCase();
       const typing = tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable;
+      if ((e.metaKey || e.ctrlKey) && !e.altKey && e.key.toLowerCase() === 'i') {
+        e.preventDefault();
+        const ai = useAI.getState();
+        if (voice.active) { if (ai.open && ai.view === 'voice') { ai.setVoice({ minimized: true }); ai.closePanel(); } else ai.openPanel('voice'); }
+        else { ai.openPanel('voice'); voice.start(); }
+        return;
+      }
       if ((e.metaKey || e.ctrlKey) && !e.altKey && e.key.toLowerCase() === 'j') {
         e.preventDefault();
         const ai = useAI.getState();
-        if (e.shiftKey) {
-          if (voice.active) { if (ai.open && ai.view === 'voice') { ai.setVoice({ minimized: true }); ai.closePanel(); } else ai.openPanel('voice'); }
-          else { ai.openPanel('voice'); voice.start(); }
-        } else ai.toggle('chat');
+        ai.toggle('chat');
         return;
       }
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setUI({ palette: !useStore.getState().ui.palette }); return; }

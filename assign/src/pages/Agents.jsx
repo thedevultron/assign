@@ -38,7 +38,7 @@ function AgentCard({ a, i, now }) {
         <Tip label={a.paused ? 'Resume agent' : 'Pause agent'}><span><Toggle on={!a.paused} onChange={(v) => saveAgent({ id: a.id, paused: !v })} label={`${a.name} active`} /></span></Tip>
       </div>
       <div className="row wrap" style={{ gap: 6 }}>
-        <span className="chip solid">{providerLabel(a.provider)}</span>
+        <span className="chip solid">{providerLabel(a.provider, a)}</span>
         <span className="chip mono" style={{ fontSize: 10.5 }}>assign-{a.handle}</span>
         <span className={`chip ${online && !a.paused ? 'ok' : ''}`}>{status}</span>
         {needsPair ? <button className="chip iris" onClick={() => setUI({ connectAgentId: a.id })}><Icon name="lock" size={11} />{a.pair_pending ? 'Enter pairing code' : 'Not paired'}</button> : null}
@@ -46,7 +46,7 @@ function AgentCard({ a, i, now }) {
       {mismatch ? (
         <div className="warnbox" style={{ padding: '10px 12px', fontSize: 12.5 }}>
           <Icon name="alert" size={14} style={{ flex: 'none', marginTop: 2 }} />
-          <span>Connected from <b style={{ fontWeight: 400, color: '#fff' }}>{a.client_name}</b>, but set up for {providerLabel(a.provider)}. <button className="link" onClick={() => saveAgent({ id: a.id, provider: detectProvider(a.client_name) })}>Switch to {providerLabel(detectProvider(a.client_name))}</button></span>
+          <span>Connected from <b style={{ fontWeight: 400, color: '#fff' }}>{a.client_name}</b>, but set up for {providerLabel(a.provider, a)}. <button className="link" onClick={() => saveAgent({ id: a.id, provider: detectProvider(a.client_name) })}>Switch to {providerLabel(detectProvider(a.client_name))}</button></span>
         </div>
       ) : null}
       <div className="ac-meta">

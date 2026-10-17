@@ -4,13 +4,12 @@ import Icon from '../Icon.jsx';
 import { Button, Tip, Spinner, EASE, EASE_OUT, quick } from '../ui.jsx';
 import { useStore } from '../../lib/store.js';
 import { useAI, TOOL_LABEL, toolIcon, toolArg, canDictate, dictate } from '../../lib/ai.js';
-import { voice, levels, voiceLevel } from '../../lib/voice.js';
+import { voice, voiceLevel } from '../../lib/voice.js';
 import { cx } from '../../lib/helpers.js';
 import { api } from '../../lib/api.js';
 import PromptBar from '../reactbits/PromptBar';
 import CallChip from '../reactbits/CallChip';
 import ThoughtLine from '../reactbits/ThoughtLine';
-import VoicePill from '../reactbits/VoicePill';
 
 const Orb = lazy(() => import('../reactbits/Orb'));
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
@@ -203,7 +202,7 @@ function ChatView() {
             <AIOrb size={150} />
             <div className="col" style={{ alignItems: 'center', gap: 8, textAlign: 'center' }}>
               <h3 className="h3 serif" style={{ margin: 0 }}>{user?.name ? <>Hi {user.name.split(' ')[0]}, what’s <em>next?</em></> : <>What’s <em>next?</em></>}</h3>
-              <p className="small muted" style={{ margin: 0, maxWidth: 320 }}>Ask about your board, or tell me what to change. I can create, assign, send and review tasks.</p>
+              <p className="small muted" style={{ margin: 0, maxWidth: 320 }}>Ask about your board or tell me what to change.</p>
             </div>
             <div className="ai-suggest">
               {SUGGESTIONS.map((s, i) => (
@@ -267,14 +266,14 @@ function ChatView() {
               background="#1a1b1c" color="#f5f5f7" menuBackground="#2e2e2e" sparkColor="#847dff" width={2000} radius={14} maxRows={6}
             />
           </div>
-          <Tip label={voice.active ? 'Voice is live — open it' : 'Talk instead — start voice'}>
+          <Tip label={voice.active ? `Voice is live — open it (${MOD}I)` : `Talk instead — start voice (${MOD}I)`}>
             <button className={cx('icon-btn ai-mic', voice.active && 'live')} onClick={startVoice} aria-label="Start voice assistant">
               <Icon name="mic" size={17} />
             </button>
           </Tip>
         </div>
         <div className="ai-foot tiny">
-          <span className="trunc">{provider?.label} · {st?.chat_model}</span>
+          <span className="trunc">{st?.chat_model}</span>
           <span className="kbd">{MOD} J</span>
         </div>
       </div>
@@ -315,45 +314,23 @@ function VoiceView() {
   useEffect(() => { const el = scroller.current; if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' }); }, [v.lines, v.calls]);
   const vm = config?.voice_models?.find((m) => m.id === config?.settings?.voice_model);
 
-  // tap an example → start talking, then say it once the session is listening
-  const pendingSay = useRef(null);
-  useEffect(() => {
-    if (v.status === 'listening' && pendingSay.current) { const t = pendingSay.current; pendingSay.current = null; voice.sendText(t); }
-  }, [v.status]);
-  const say = (t) => {
-    if (running && v.status === 'listening') { voice.sendText(t); return; }
-    pendingSay.current = t;
-    if (!running) voice.start();
-  };
-  const backToChat = () => useAI.getState().set({ view: 'chat' });
-
-  const QUICK = [
-    'What needs my review?',
-    'Create a task to fix the top overdue item, high priority.',
-    'Take me to the board.',
-  ];
-
+  // one mic button starts everything — no extra chips, no extra entry points
   if (!running) {
     return (
       <div className="ai-scroll ai-empty">
         <AIOrb size={190} intensity={0.3} />
         <div className="col" style={{ alignItems: 'center', gap: 8, textAlign: 'center' }}>
           <h3 className="h3 serif" style={{ margin: 0 }}>Just <em>say it.</em></h3>
-          <p className="small muted" style={{ margin: 0, maxWidth: 330 }}>Talk to assign hands-free. It hears you, answers out loud and works on your board while you watch. Minimise it and keep going.</p>
+          <p className="small muted" style={{ margin: 0, maxWidth: 330 }}>Talk hands-free. It listens, answers out loud, and works on your board.</p>
         </div>
         {v.status === 'error' && v.error ? <div className="ai-error"><Icon name="alert" size={14} /><span>{v.error}</span></div> : null}
         {config && !hasGoogle ? <KeySetup provider="google" /> : (
           <div className="col" style={{ alignItems: 'center', gap: 10 }}>
-            <Button onClick={() => voice.start()} disabled={!config}><Icon name="mic" size={15} />Start talking</Button>
-            <div className="ai-suggest">
-              {QUICK.map((q) => (
-                <motion.button key={q} className="ai-sug" onClick={() => say(q)}>
-                  <Icon name="mic" size={14} /><span>{q}</span>
-                </motion.button>
-              ))}
-            </div>
-            <span className="tiny muted">{vm?.label || 'Gemini 3.8 Live'}{vm?.thinking ? ` · ${config?.settings?.voice_effort} thinking` : ''} · voice {config?.settings?.voice_name} · <span className="kbd">{MOD} ⇧ J</span></span>
-            <button className="link small" onClick={backToChat}>Back to chat</button>
+            <button className={cx('ai-mic-big', v.status === 'error' && 'shake')} onClick={() => voice.start()} disabled={!config} aria-label="Start talking">
+              <Icon name="mic" size={22} />
+            </button>
+            <span className="small" style={{ color: '#fff' }}>Talk</span>
+            <span className="tiny muted">{vm?.label || 'Gemini 3.8 Live'}{vm?.thinking ? ` · ${config?.settings?.voice_effort} thinking` : ''} · voice {config?.settings?.voice_name}</span>
           </div>
         )}
       </div>
@@ -376,7 +353,7 @@ function VoiceView() {
         </div>
       </div>
       <div className="ai-scroll ai-transcript" ref={scroller}>
-        {v.lines.length === 0 ? <p className="small muted" style={{ textAlign: 'center', margin: '8px 0' }}>Try “What’s waiting for review?” or “Create a task for Nova to fix the login bug, high priority.”</p> : null}
+        {v.lines.length === 0 ? <p className="small muted" style={{ textAlign: 'center', margin: '8px 0' }}>Listening… try “What’s waiting for review?”</p> : null}
         {v.lines.map((l) => {
           if (l.role === 'call') { const c = callsById[l.callId]; if (!c) return null; return (
             <Fragment key={l.id}>
@@ -393,14 +370,14 @@ function VoiceView() {
         <form className="ai-type" onSubmit={(e) => { e.preventDefault(); voice.sendText(typed); setTyped(''); }}>
           <input className="input" placeholder="Type instead…" value={typed} onChange={(e) => setTyped(e.target.value)} aria-label="Type to the voice assistant" />
         </form>
-        <div className="row" style={{ gap: 8, justifyContent: 'space-between' }}>
-          <Tip label="Back to chat"><button className="icon-btn ai-round" onClick={backToChat} aria-label="Back to chat"><Icon name="chat" size={17} /></button></Tip>
+        <div className="row" style={{ gap: 8, justifyContent: 'space-between', alignItems: 'center' }}>
+          <Tip label={v.muted ? 'Unmute' : 'Mute'}>
+            <button className={cx('icon-btn ai-round', v.muted && 'danger')} onClick={() => voice.toggleMute()} aria-label={v.muted ? 'Unmute microphone' : 'Mute microphone'}>
+              <Icon name={v.muted ? 'micOff' : 'mic'} size={17} />
+            </button>
+          </Tip>
           <Tip label="Minimise — keep talking"><button className="icon-btn ai-round" onClick={() => { useAI.getState().setVoice({ minimized: true }); useAI.getState().closePanel(); }} aria-label="Minimise voice"><Icon name="shrink" size={17} /></button></Tip>
           <Tip label="End"><button className="icon-btn ai-round danger" onClick={() => voice.stop()} aria-label="End voice session"><Icon name="hangup" size={17} /></button></Tip>
-          <span className="spacer" />
-          <VoicePill active={!v.muted} reactive="external" getLevel={() => levels.in} mode="toggle" showTime waveform slideToCancel={false}
-            accentColor="#d1c9ff" iconColor="#cacaca" background="#2e2e2e" size={40} reach={120} ariaLabel={v.muted ? 'Unmute microphone' : 'Mute microphone'}
-            onStart={() => voice.setMuted(false)} onStop={({ reason }) => { if (reason === 'cancel') voice.stop(); else if (['tap', 'key', 'release', 'escape'].includes(reason)) voice.setMuted(true); }} />
         </div>
       </div>
     </>
@@ -435,15 +412,15 @@ export function AssistantPanel() {
               <span className="ai-mark"><Icon name="magic" size={15} /></span>
               <div className="col" style={{ gap: 0, minWidth: 0 }}>
                 <span className="serif" style={{ fontSize: 19, color: '#fff', lineHeight: 1.1 }}>Assistant</span>
-                <span className="tiny muted trunc">{voiceOn ? 'Live voice' : config?.providers?.find((p) => p.id === config.settings.chat_provider)?.label || 'AI'}</span>
+                <span className="tiny muted trunc">{voiceOn ? 'Live voice' : 'Chat'}</span>
               </div>
               <span className="spacer" />
               {view === 'voice'
                 ? <Tip label="Back to chat"><button className="icon-btn sm" onClick={() => set({ view: 'chat' })} aria-label="Back to chat"><Icon name="chat" size={16} /></button></Tip>
-                : <Tip label={voiceOn ? 'Voice is live — open it' : `Talk  ${MOD}⇧J`}><button className={cx('icon-btn sm', voiceOn && 'live')} onClick={() => { set({ view: 'voice' }); setVoice({ minimized: false }); if (!voiceOn) voice.start(); }} aria-label="Start voice assistant"><Icon name="mic" size={16} /></button></Tip>}
+                : null}
               {view === 'chat' ? <Tip label="New chat"><button className="icon-btn sm" onClick={clear} disabled={busy} aria-label="New chat"><Icon name="refresh" size={16} /></button></Tip> : null}
-              <Tip label="Settings"><a className="icon-btn sm" href="#/settings/ai" onClick={closePanel} aria-label="Assistant settings"><Icon name="settings" size={16} /></a></Tip>
-              <Tip label="Close  Esc"><button className="icon-btn sm" onClick={() => { if (view === 'voice' && voiceOn) setVoice({ minimized: true }); closePanel(); }} aria-label="Close assistant"><Icon name="close" size={16} /></button></Tip>
+              
+              <Tip label="Close"><button className="icon-btn sm" onClick={() => { if (view === 'voice' && voiceOn) setVoice({ minimized: true }); closePanel(); }} aria-label="Close assistant"><Icon name="close" size={16} /></button></Tip>
             </header>
             <AnimatePresence mode="wait" initial={false}>
               <motion.div key={view} className="ai-body" initial={{ opacity: 0, x: view === 'voice' ? 24 : -24, filter: 'blur(6px)' }} animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, x: view === 'voice' ? 24 : -24, filter: 'blur(6px)' }} transition={{ duration: 0.35, ease: EASE_OUT }}>

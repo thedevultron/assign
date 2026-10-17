@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"></head>
+<body>
+<template>
+<style>
+@font-face{font-family:"Inter";font-weight:400;font-style:normal;font-display:block;src:url("assets/fonts/Inter-400.woff2") format("woff2");}
+@font-face{font-family:"Inter";font-weight:700;font-style:normal;font-display:block;src:url("assets/fonts/Inter-700.woff2") format("woff2");}
+@font-face{font-family:"Newsreader";font-weight:300;font-style:normal;src:local("Newsreader Light"),local("Newsreader"),local("Georgia"),local("Times New Roman");}
+@font-face{font-family:"Newsreader";font-weight:400;font-style:normal;src:local("Newsreader"),local("Georgia"),local("Times New Roman");}
+@font-face{font-family:"Newsreader";font-weight:400;font-style:italic;src:local("Newsreader Italic"),local("Georgia Italic"),local("Georgia");}
+@font-face{font-family:"Roboto Mono";font-weight:400;font-style:normal;src:local("Roboto Mono"),local("Consolas"),local("Courier New");}
+@font-face{font-family:"Roboto Mono";font-weight:500;font-style:normal;src:local("Roboto Mono Medium"),local("Consolas"),local("Courier New");}
+#root{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;background:#090a0b;color:#f5f5f7;font-family:Inter,-apple-system,system-ui,sans-serif;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.glow{position:absolute;width:1300px;height:1300px;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(132,125,255,0.16) 0%,rgba(0,179,221,0.05) 45%,transparent 70%);border-radius:50%;pointer-events:none;}
+.mark{display:flex;align-items:center;gap:28px;opacity:0;transform:scale(0.88);}
+.logo-text{font-size:88px;font-weight:700;letter-spacing:-.04em;color:#ffffff;}
+.tag{font-family:"Newsreader",Georgia,serif;font-weight:300;font-size:46px;line-height:1.1;letter-spacing:-.015em;text-align:center;max-width:900px;margin-top:28px;opacity:0;}
+.tag em{font-style:italic;color:#847dff;}
+.meta{font-family:"Roboto Mono",monospace;font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:#9f9fa0;margin-top:22px;opacity:0;display:flex;gap:18px;align-items:center;}
+.meta .sep{color:#6a6b6b;}
+.url{font-family:"Roboto Mono",monospace;font-size:18px;letter-spacing:.04em;color:#d1c9ff;margin-top:34px;opacity:0;padding:10px 22px;border:1px solid rgba(132,125,255,0.3);border-radius:9999px;background:rgba(132,125,255,0.08);}
+</style>
+<div id="root" data-composition-id="07-cta" data-width="1920" data-height="1080">
+  <div class="glow" id="f7-glow"></div>
+  <div class="mark" id="f7-mark">
+    <svg width="112" height="112" viewBox="0 0 32 32" fill="none">
+      <rect x="0.5" y="0.5" width="31" height="31" rx="8" fill="#ffffff"/>
+      <rect x="7" y="8" width="5" height="16" rx="1.5" fill="#0f1011" id="b1"/>
+      <rect x="13.5" y="8" width="5" height="10" rx="1.5" fill="#0f1011" id="b2"/>
+      <rect x="20" y="8" width="5" height="6" rx="1.5" fill="#847dff" id="b3"/>
+    </svg>
+    <span class="logo-text">assign</span>
+  </div>
+  <div class="tag" id="f7-tag">Give your agents a <em>board.</em></div>
+  <div class="meta" id="f7-meta">
+    <span>Free</span><span class="sep">·</span><span>Self-hosted</span><span class="sep">·</span><span>Two minutes</span>
+  </div>
+  <div class="url" id="f7-url">assign · get started</div>
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+// bars drop in
+tl.fromTo("#b1",{y:-24,opacity:0},{y:0,opacity:1,duration:0.5,ease:"back.out(1.6)"},0.1);
+tl.fromTo("#b2",{y:-24,opacity:0},{y:0,opacity:1,duration:0.5,ease:"back.out(1.6)"},0.22);
+tl.fromTo("#b3",{y:-24,opacity:0},{y:0,opacity:1,duration:0.5,ease:"back.out(1.6)"},0.34);
+// mark + wordmark
+tl.fromTo("#f7-mark",{scale:0.88,opacity:0},{scale:1,opacity:1,duration:0.7,ease:"back.out(1.4)"},0.55);
+// tag
+tl.fromTo("#f7-tag",{y:20,opacity:0},{y:0,opacity:1,duration:0.7,ease:"power3.out"},1.35);
+// meta
+tl.fromTo("#f7-meta",{opacity:0},{opacity:1,duration:0.5,ease:"power3.out"},1.95);
+// url
+tl.fromTo("#f7-url",{opacity:0,y:12},{opacity:1,y:0,duration:0.6,ease:"power3.out"},2.35);
+// glow breathe
+tl.to("#f7-glow",{scale:1.2,duration:2.0,yoyo:true,repeat:1,ease:"sine.inOut"},0.4);
+// hold to end (stillness)
+window.__timelines["07-cta"]=tl;
+</script>
+</template>
+</body>
+</html>

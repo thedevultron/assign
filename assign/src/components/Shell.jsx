@@ -224,11 +224,9 @@ export function Sidebar({ active }) {
   );
 }
 
-/** Sidebar entry for the assistant: opens chat; the mic starts a voice session. */
+/** Sidebar entry for the assistant: opens the chat panel (the single mic lives in its input bar). */
 function AssistantNav({ collapsed, onNavigate }) {
   const open = useAI((s) => s.open);
-  const vs = useAI((s) => s.voice.status);
-  const live = !['idle', 'ended', 'error'].includes(vs);
   return (
     <Tip label={`Assistant  ${MOD}J`} side="right" disabled={!collapsed} block>
       <div className={cx('nav-item ai-nav', open && 'active')} role="button" tabIndex={0}
@@ -236,14 +234,8 @@ function AssistantNav({ collapsed, onNavigate }) {
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); useAI.getState().toggle('chat'); } }}>
         <span className="ico"><span className="ai-glyph"><Icon name="magic" size={15} /></span></span>
         <span className="hide-c trunc">Assistant</span>
-        <span className="hide-c row" style={{ marginLeft: 'auto', gap: 6 }}>
+        <span className="hide-c" style={{ marginLeft: 'auto' }}>
           <span className="kbd">{MOD} J</span>
-          <Tip label={live ? 'Voice is live' : `Talk  ${MOD}⇧J`}>
-            <button className={cx('ai-nav-mic', live && 'live')} aria-label="Start voice assistant"
-              onClick={(e) => { e.stopPropagation(); onNavigate?.(); useAI.getState().openPanel('voice'); if (!live) voice.start(); }}>
-              <Icon name="mic" size={13} />
-            </button>
-          </Tip>
         </span>
       </div>
     </Tip>
@@ -309,6 +301,7 @@ export function Topbar({ title, sub, actions }) {
       <div className="spacer" />
       {actions}
       <Tip label={`Assistant  ${MOD}J`}><button className="ask-pill hide-sm" onClick={() => useAI.getState().toggle('chat')} aria-label="Open assistant"><Icon name="magic" size={15} /><span>Ask</span></button></Tip>
+      <Tip label={`Voice  ${MOD}I`}><button className="icon-btn hide-sm" aria-label="Start voice assistant" onClick={() => { const ai = useAI.getState(); ai.openPanel('voice'); ai.setVoice({ minimized: false }); if (!voice.active) voice.start(); }}><Icon name="mic" size={16} /></button></Tip>
       <ReviewBell />
       <button className="search-pill" onClick={() => setUI({ palette: true })} aria-label="Search and commands">
         <Icon name="search" size={15} /><span className="sp-text">Search or jump to…</span><span className="kbd">⌘K</span>

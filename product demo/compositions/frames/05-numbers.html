@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        @font-face {
+          font-family: 'Roboto Mono';
+          src: local('Consolas'), local('Courier New'), local('monospace');
+        }
+        @font-face {
+          font-family: 'Newsreader';
+          src: local('Georgia'), local('Times New Roman'), local('serif');
+        }
+        #root {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+          background: #090a0b;
+          color: #f5f5f7;
+          font-family: "Inter", -apple-system, system-ui, sans-serif;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 40px 100px;
+        }
+        .section-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          padding: 6px 18px;
+          border-radius: 9999px;
+          font-family: "Roboto Mono", monospace;
+          font-size: 13px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #a0a0a2;
+          margin-bottom: 12px;
+        }
+        .section-badge .dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #847dff;
+          box-shadow: 0 0 10px #847dff;
+        }
+        .serif-title {
+          font-family: "Newsreader", Georgia, serif;
+          font-weight: 300;
+          font-size: 58px;
+          line-height: 1.1;
+          letter-spacing: -0.02em;
+          text-align: center;
+          color: #f5f5f7;
+        }
+        .serif-title em {
+          font-style: italic;
+          color: #ffffff;
+        }
+        .numbers-grid {
+          width: 1540px;
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 26px;
+          margin-top: 36px;
+        }
+        .stat-card {
+          background: #161718;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 20px;
+          padding: 34px 28px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          height: 380px;
+          position: relative;
+        }
+        .big-num {
+          font-size: 96px;
+          font-weight: 700;
+          line-height: 1;
+          color: #ffffff;
+          letter-spacing: -0.04em;
+        }
+        .stat-desc {
+          font-size: 16px;
+          color: #a0a0a2;
+          line-height: 1.45;
+        }
+        .otp-box {
+          display: flex;
+          gap: 8px;
+          margin-top: 12px;
+        }
+        .otp-digit {
+          width: 42px;
+          height: 52px;
+          background: #1f2021;
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-family: "Roboto Mono", monospace;
+          font-size: 24px;
+          font-weight: 700;
+          color: #ffffff;
+        }
+        .heat-grid {
+          display: grid;
+          grid-template-columns: repeat(14, 1fr);
+          gap: 4px;
+          margin-top: 14px;
+        }
+        .heat-cell {
+          width: 14px;
+          height: 14px;
+          border-radius: 3px;
+          background: #2a2b2d;
+        }
+        .heat-cell.active-1 { background: rgba(132, 125, 255, 0.35); }
+        .heat-cell.active-2 { background: rgba(132, 125, 255, 0.7); }
+        .heat-cell.active-3 { background: #847dff; box-shadow: 0 0 6px #847dff; }
+      </style>
+
+      <div id="root" data-composition-id="frame-05" data-width="1920" data-height="1080">
+        <div class="section-badge"><span class="dot"></span>By The Numbers</div>
+        <h2 class="serif-title">
+          Small surface. <em>Serious plumbing.</em>
+        </h2>
+
+        <div class="numbers-grid">
+          <!-- Stat 1: 8 Coding Tools -->
+          <div class="stat-card" id="f5-card-1">
+            <div class="section-badge" style="margin: 0; align-self: flex-start;">Compatibility</div>
+            <div class="big-num" id="f5-num-1">8</div>
+            <div class="stat-desc">
+              <strong>Coding tools</strong> supported out of the box: Claude Code, Cursor, Codex, Windsurf, Copilot, Cline, Gemini CLI.
+            </div>
+          </div>
+
+          <!-- Stat 2: 13 MCP Primitives -->
+          <div class="stat-card" id="f5-card-2">
+            <div class="section-badge" style="margin: 0; align-self: flex-start;">MCP Core</div>
+            <div class="big-num" id="f5-num-2">13</div>
+            <div class="stat-desc">
+              <strong>MCP tools</strong> for agents: <code>whoami</code>, <code>claim_task</code>, <code>start_task</code>, <code>complete_task</code>.
+            </div>
+          </div>
+
+          <!-- Stat 3: 3 Protocol Versions -->
+          <div class="stat-card" id="f5-card-3">
+            <div class="section-badge" style="margin: 0; align-self: flex-start;">Standards</div>
+            <div class="big-num" id="f5-num-3">3</div>
+            <div class="stat-desc">
+              <strong>Protocol versions:</strong> 2025-06-18, 2025-03-26, and 2024-11-05 for streamable HTTP.
+            </div>
+          </div>
+
+          <!-- Stat 4: Security & OTP Pairing -->
+          <div class="stat-card" id="f5-card-4">
+            <div class="section-badge" style="margin: 0; align-self: flex-start; color: #10b981; border-color: rgba(16,185,129,0.3);">
+              Security & Pairing
+            </div>
+            <div>
+              <div style="font-size: 12px; font-family: 'Roboto Mono', monospace; color: #c8c8cc;">6-DIGIT AGENT OTP:</div>
+              <div class="otp-box">
+                <div class="otp-digit">7</div>
+                <div class="otp-digit">8</div>
+                <div class="otp-digit">2</div>
+                <div class="otp-digit">4</div>
+                <div class="otp-digit">1</div>
+                <div class="otp-digit">9</div>
+              </div>
+            </div>
+            <div class="heat-grid">
+              <div class="heat-cell active-1"></div><div class="heat-cell active-3"></div><div class="heat-cell active-2"></div><div class="heat-cell active-3"></div><div class="heat-cell active-1"></div><div class="heat-cell active-2"></div><div class="heat-cell active-3"></div><div class="heat-cell active-1"></div><div class="heat-cell active-2"></div><div class="heat-cell active-3"></div><div class="heat-cell active-2"></div><div class="heat-cell active-3"></div><div class="heat-cell active-1"></div><div class="heat-cell active-3"></div>
+            </div>
+            <div class="stat-desc" style="font-size: 13.5px;">
+              Single SQLite database. Encrypted keys with <code>AI_SECRET</code>.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        const tl = gsap.timeline({ paused: true });
+        tl.fromTo(".stat-card", 
+          { y: 50, opacity: 0 }, 
+          { y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "power3.out" }, 
+          0.1
+        );
+
+        // Counter 1: 0 to 8
+        const p1 = { val: 0 };
+        tl.to(p1, {
+          val: 8,
+          duration: 1.2,
+          ease: "power2.out",
+          onUpdate: () => {
+            const el = document.getElementById("f5-num-1");
+            if (el) el.textContent = Math.round(p1.val);
+          }
+        }, 0.2);
+
+        // Counter 2: 0 to 13
+        const p2 = { val: 0 };
+        tl.to(p2, {
+          val: 13,
+          duration: 1.4,
+          ease: "power2.out",
+          onUpdate: () => {
+            const el = document.getElementById("f5-num-2");
+            if (el) el.textContent = Math.round(p2.val);
+          }
+        }, 0.3);
+
+        // Counter 3: 0 to 3
+        const p3 = { val: 0 };
+        tl.to(p3, {
+          val: 3,
+          duration: 0.9,
+          ease: "power2.out",
+          onUpdate: () => {
+            const el = document.getElementById("f5-num-3");
+            if (el) el.textContent = Math.round(p3.val);
+          }
+        }, 0.4);
+
+        // OTP digits pop
+        tl.fromTo(".otp-digit", 
+          { scale: 0.5, opacity: 0 }, 
+          { scale: 1, opacity: 1, stagger: 0.08, duration: 0.3, ease: "back.out(2)" }, 
+          1.2
+        );
+        window.__timelines["frame-05"] = tl;
+      </script>
+    </template>
+  </body>
+</html>

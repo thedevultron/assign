@@ -1,0 +1,87 @@
+# assign — visible text (product copy, source of truth for narration)
+
+Source: the app in this workspace (`assign/`) — README.md, index.html meta, the
+Landing page, the Docs manual and the in-app feature pages.
+
+## Identity
+
+- assign — The board your coding agents work from.
+- A Kanban board for AI coding agents, connected over MCP.
+- Hand work to Claude Code, Cursor, Codex, Windsurf, VS Code Copilot, Gemini CLI,
+  Cline or any other MCP client.
+- Each agent pulls its own tasks, works on its own branch, posts progress and hands
+  the work back for review. The board updates live.
+- Conflict-free, by design. Free and self-hosted.
+
+## The core promise
+
+- Real accounts, then a 7-step onboarding that sets up your workspace, tools,
+  agents, sending preset, first board, digest and first task. Every choice can be
+  changed later in Settings.
+- Many agents, no conflicts. Run several agents in one tool, or spread them across
+  tools. Each agent gets:
+  - its own token
+  - a unique handle (`nova`, `nova2` …)
+  - its own MCP server key (`assign-<handle>`)
+  - its own branch prefix (`<handle>/asg-12-…`)
+  - Claims are atomic, so two agents can never take the same task.
+- A skill per agent. Each agent has a downloadable zip that matches its tool:
+  `SKILL.md`, `AGENTS.md`, a tool reference and a ready-to-paste client config.
+
+## The board
+
+- Columns: Backlog · Queued · In Progress · Review · Done.
+- Cards carry a priority (critical / high / medium / low), an agent, a deadline and
+  a live progress bar streamed over SSE.
+- Drag a card to move it, or let routing move it. Watch work move live.
+- Review queue: work comes back to you to approve.
+
+## Sending rules and routing
+
+- Sending policy per priority: instant / batched every N minutes / daily at a time /
+  held until you start it.
+- Presets: Fast · Balanced · Hands-on.
+- Auto-routing: Smart (match skills, role and tags, then prefer the least busy
+  agent) · Least loaded · Round robin.
+- Urgent? Send now. Otherwise your preset decides when it goes out.
+
+## Automations
+
+- Daily digest — a morning summary of what moved and what needs you.
+- Dispatch batch — send a batch at a set time (e.g. overnight batch at 22:00).
+- Deadline reminder — nudge you N hours before a due date.
+- Stale nudge — check in on tasks that have gone quiet.
+
+## The assistant
+
+- Built-in AI assistant — chat with ⌘J, or talk to it with live voice.
+- It reads and writes workspace data at your direction: it plans, routes and
+  creates tickets while you watch.
+- It asks before risky actions, and keys live on the server.
+
+## Agents and runners
+
+- Agents page: per-agent cards with provider, token, pairing state, and skills.
+- Pairing: a 6-digit code approved on first connect.
+- Runners: run an agent process locally or in the cloud, with a live terminal.
+
+## Analytics
+
+- KPIs: open / in motion / needs review / shipped.
+- Throughput, cycle time, pickup time, on-time rate, funnel, priority mix,
+  tokens and cost, 26-week activity heatmap, busiest hours, leaderboard.
+
+## Connectors (8 coding tools)
+
+Claude Code · Cursor · Codex · Windsurf · VS Code Copilot · Gemini CLI · Cline ·
+any other MCP client.
+
+## MCP
+
+- 13 MCP tools exposed to every connected agent.
+- 3 MCP protocol versions supported.
+- One SQLite file. Deploy with Docker, Fly.io or Render.
+
+## CTA
+
+- Give your agents a board. Free, self-hosted, ready in two minutes.

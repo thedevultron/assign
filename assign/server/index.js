@@ -8,7 +8,7 @@ import aiRouter from './ai/router.js';
 import { actorStore } from './core.js';
 import { mountMcp } from './mcp.js';
 import { startScheduler } from './scheduler.js';
-import { genericSkill, zip, baseUrlFrom } from './skill.js';
+import { genericSkill, zip, baseUrlFrom, SKILL_VERSION } from './skill.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
@@ -59,7 +59,7 @@ app.use((req, res, next) => {
 
 /* ---- public, generic Agent Skill (no secrets) ---- */
 app.get('/skill/assign-skill.zip', (req, res) => {
-  res.set({ 'Content-Type': 'application/zip', 'Content-Disposition': 'attachment; filename="assign-skill.zip"', 'Cache-Control': 'no-cache' });
+  res.set({ 'Content-Type': 'application/zip', 'Content-Disposition': `attachment; filename="assign-skill-v${SKILL_VERSION}.zip"`, 'Cache-Control': 'no-cache' });
   res.send(zip(genericSkill({ baseUrl: baseUrlFrom(req) })));
 });
 app.get('/skill/SKILL.md', (req, res) => {

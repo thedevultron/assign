@@ -244,14 +244,24 @@ async function readSSE(res, onData) {
 export async function createLiveToken(key, model) {
   const expireTime = new Date(Date.now() + 30 * 60e3).toISOString();
   const newSessionExpireTime = new Date(Date.now() + 2 * 60e3).toISOString();
-  const body = { uses: 1, expireTime, newSessionExpireTime, liveConnectConstraints: { model: `models/${model}` } };
   const root = process.env.AI_BASE_GOOGLE_ROOT || 'https://generativelanguage.googleapis.com';
+  const headers = { 'x-goog-api-key': key, 'Content-Type': 'application/json' };
+  // Newer Google key formats reject liveConnectConstraints; try the constrained
+  // body first, then fall back to the minimal body (model is then picked at connect time).
+  const bodies = [
+    { uses: 1, expireTime, newSessionExpireTime, liveConnectConstraints: { model: `models/${model}` } },
+    { uses: 1, expireTime, newSessionExpireTime },
+  ];
   let lastErr;
   for (const version of ['v1alpha', 'v1beta']) {
-    const res = await fetch(`${root}/${version}/auth_tokens`, { method: 'POST', headers: { 'x-goog-api-key': key, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-    if (res.ok) { const j = await res.json(); return { token: j.name, version, expireTime }; }
-    lastErr = friendly('google', res.status, await readError(res));
-    if (res.status === 401 || res.status === 403 || res.status === 429) break;
+    for (const body of bodies) {
+      const res = await fetch(`${root}/${version}/auth_tokens`, { method: 'POST', headers, body: JSON.stringify(body) });
+      if (res.ok) { const j = await res.json(); return { token: j.name, version, expireTime }; }
+      lastErr = friendly('google', res.status, await readError(res));
+      const msg = String(lastErr.message || '');
+      // unknown-field errors are worth retrying without the constraint; auth/quota errors are not
+      if (!/unknown name|invalid json payload|cannot find field/i.test(msg)) break;
+    }
   }
   throw lastErr;
 }
